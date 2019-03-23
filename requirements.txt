@@ -1,0 +1,7 @@
+Django==1.11.12
+django-appconf==1.0.3
+django-video-encoding==0.4.0
+Pillow==5.4.1
+pytz==2018.9
+shutilwhich==1.1.0
+six==1.12.0
