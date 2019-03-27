@@ -1,0 +1,26 @@
+------ Ubuntu -------
+# https://linuxize.com/post/how-to-install-ffmpeg-on-ubuntu-18-04/
+
+sudo apt-get install redis-server
+sudo apt install ffmpeg
+sudo apt install ffmpeg
+
+ffmpeg -version
+
+The output should look something like this:
+ffmpeg version 3.4.4-0ubuntu0.18.04.1 Copyright (c) 2000-2018 the FFmpeg developers
+built with gcc 7 (Ubuntu 7.3.0-16ubuntu3)
+
+To print all available FFmpeg’s encoders and decoders type:
+
+ffmpeg -encoders
+ffmpeg -decoders
+
+-- configurar django-rq
+https://github.com/rq/django-rq
+
+-- Correr servidor redis
+redis-server
+
+-- Correr worker
+manage.py rqworker high default low

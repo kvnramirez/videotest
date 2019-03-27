@@ -12,7 +12,10 @@
     <h2>Uploaded Videos</h2>
     {% for video in videos %}
       {{ video.file.name }}
-      (Duration: {{ video.duration }}s, {{ video.width }}x{{ video.height }})
+      (Duration: {{ video.duration }}s, {{ video.width }}x{{ video.height }})<br>
+        Format_Set = {{ video.format_set }}
+        Format_Set progress = {{ video.format_set.progress }}
+        Format_Set object_id = {{ video.format_set.all}}
       <br>
     {% endfor %}
   </body>

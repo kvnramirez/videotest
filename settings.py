@@ -2,7 +2,6 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
@@ -28,6 +27,7 @@ INSTALLED_APPS = (
 
     'video_encoding',
     'media_library',
+    'django_rq'
 )
 
 MIDDLEWARE = (
@@ -60,7 +60,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'videotest.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
@@ -70,7 +69,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -85,8 +83,66 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+
+RQ_QUEUES = {
+    'default': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'PASSWORD': '',
+        'DEFAULT_TIMEOUT': 360,
+    },
+    'with-sentinel': {
+        'SENTINELS': [('localhost', 26736), ('localhost', 26737)],
+        'MASTER_NAME': 'redismaster',
+        'DB': 0,
+        'PASSWORD': 'secret',
+        'SOCKET_TIMEOUT': None,
+        'CONNECTION_KWARGS': {
+            'socket_connect_timeout': 0.3
+        },
+    },
+    'high': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'PASSWORD': '',
+        'DEFAULT_TIMEOUT': 360,
+    },
+    'low': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'PASSWORD': '',
+        'DEFAULT_TIMEOUT': 360,
+    }
+}
+
+VIDEO_ENCODING_FORMATS = {
+        'FFmpeg': [
+            {
+                'name': 'mp4_sd',
+                'extension': 'mp4',
+                'params': [
+                    '-codec:v', 'libx264', '-crf', '20', '-preset', 'medium',
+                    '-b:v', '1500k', '-maxrate', '1000k', '-bufsize', '2000k',
+                    '-vf', 'scale=-2:480',  # http://superuser.com/a/776254
+                    '-codec:a', 'aac', '-b:a', '128k', '-strict', '-2',
+                ],
+            },
+            # {
+            #     'name': 'mp4_hd',
+            #     'extension': 'mp4',
+            #     'params': [
+            #         '-codec:v', 'libx264', '-crf', '20', '-preset', 'medium',
+            #         '-b:v', '3000k', '-maxrate', '3000k', '-bufsize', '6000k',
+            #         '-vf', 'scale=-2:720',
+            #         '-codec:a', 'aac', '-b:a', '128k', '-strict', '-2',
+            #     ],
+            # },
+        ]
+    }
