@@ -1,0 +1,80 @@
+{% load static %}
+{% load i18n %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Bordered Table</h2>
+    <p>The .table-bordered class adds borders to a table:</p>
+
+    {% if reviews %}
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Width</th>
+                <th>Height</th>
+                <th>Duration</th>
+                <th>File</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for review in reviews %}
+                <tr>
+                    <td>{{ review.pk }}</td>
+                    <td>{{ review.width }}</td>
+                    <td>{{ review.height }}</td>
+                    <td>
+                        {{ review.file }} <br>
+                        {% for video in review.file %}
+                            Video: {{ video }}<br>
+                            (Duration: {{ video.duration }}s, {{ video.width }}x{{ video.height }})<br>
+                            Format_Set = {{ video.format_set }}<br>
+                            Format_Set progress = {{ video.format_set.progress }}<br>
+                            Format_Set object_id = {{ video.format_set.all }}<br>
+                            <br>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    {% else %}
+        <h3>{% trans 'No hay revisiones pendientes.' %}</h3>
+    {% endif %}
+
+    <div class="paginationbox">
+        <ul class="pagination">
+            {% if reviews.has_previous %}
+                <li>
+                    <span><a href="?page={{ reviews.previous_page_number }}">{% trans 'Anterior' %}</a></span>
+                </li>
+            {% endif %}
+            <li class="">
+                <span>{% trans 'Pagina' %}&nbsp;{{ reviews.number }}&nbsp;{% trans 'de' %}&nbsp;{{ reviews.paginator.num_pages }}.</span>
+            </li>
+            {% if reviews.has_next %}
+                <li>
+                    <span><a href="?page={{ reviews.next_page_number }}">{% trans 'Siguiente' %}</a></span>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+
+</div>
+
+</body>
+</html>
