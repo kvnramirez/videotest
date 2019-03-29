@@ -1,1 +1,1 @@
-default_app_config = 'videotest.app.VideotestConfig'
+# default_app_config = 'videotest.app.VideotestConfig'

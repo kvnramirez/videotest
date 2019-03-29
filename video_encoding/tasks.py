@@ -74,6 +74,7 @@ def convert_video(fieldfile, force=False):
                 video_format.update_progress(progress)
         except VideoEncodingError:
             # TODO handle with more care
+            print "Encoding Error..."
             video_format.delete()
             os.remove(target_path)
             continue
