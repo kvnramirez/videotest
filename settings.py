@@ -24,7 +24,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'video_encoding',
     'media_library',
     'django_rq'
