@@ -5,23 +5,23 @@ from django.dispatch import receiver
 from django.shortcuts import render
 from django.views.generic import CreateView
 from django_rq import enqueue
-from video_encoding import tasks
-from video_encoding.models import Format
+# from video_encoding import tasks
+# from video_encoding.models import Format
 
 from .models import Video, Video_revision
 
 
-class VideoFormView(CreateView):
-    model = Video
-    fields = ('file',)
-
-    success_url = '/video'
-    template_name = 'video_form.html'
-
-    def get_context_data(self, *args, **kwargs):
-        context = super(VideoFormView, self).get_context_data(*args, **kwargs)
-        context['videos'] = Video.objects.all()
-        return context
+# class VideoFormView(CreateView):
+#     model = Video
+#     fields = ('file',)
+#
+#     success_url = '/video'
+#     template_name = 'video_form.html'
+#
+#     def get_context_data(self, *args, **kwargs):
+#         context = super(VideoFormView, self).get_context_data(*args, **kwargs)
+#         context['videos'] = Video.objects.all()
+#         return context
 
 
 def pending_review_list(request):
@@ -43,13 +43,13 @@ def pending_review_list(request):
 
     return render(request, 'pending_reviews.html', {'reviews': file})
 
-
-@receiver(post_save, sender=Video)
-def convert_video(sender, instance, created, **kwargs):
-    enqueue(tasks.convert_all_videos,
-            instance._meta.app_label,
-            instance._meta.model_name,
-            instance.pk)
-    if created:
-        print "new object, creating pending review"
-        Video_revision.objects.create(file=instance)
+#
+# @receiver(post_save, sender=Video)
+# def convert_video(sender, instance, created, **kwargs):
+#     enqueue(tasks.convert_all_videos,
+#             instance._meta.app_label,
+#             instance._meta.model_name,
+#             instance.pk)
+#     if created:
+#         print "new object, creating pending review"
+#         Video_revision.objects.create(file=instance)

@@ -2,8 +2,6 @@
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.utils.translation import ugettext as _
-from video_encoding.fields import VideoField
-from video_encoding.models import Format
 
 
 class Video(models.Model):
@@ -20,15 +18,7 @@ class Video(models.Model):
         null=True,
     )
 
-    file = VideoField(
-        width_field='width',
-        height_field='height',
-        duration_field='duration',
-    )
-
     video_available = models.BooleanField(verbose_name=_('Video available'), default=False)
-
-    format_set = GenericRelation(Format)
 
     # Store mp4 version
     video_mp4 = models.FileField(blank=True, default='')

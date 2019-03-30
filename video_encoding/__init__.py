@@ -1,1 +1,0 @@
-default_app_config = 'video_encoding.app.VideotestConfig'
