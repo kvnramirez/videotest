@@ -20,12 +20,16 @@ def format_post_save(sender, instance, **kwargs):
             if instance.video:
                 print "instance.video exists, getting review"
                 print instance.video.format_set.all()
+                print "success videos count: " + str(len(instance.video.format_set.complete().all()))
+                print "failed videos count: " + str(len(instance.video.format_set.fail().all()))
                 review, created = Video_revision.objects.get_or_create(file=instance.video)
                 print "review got"
                 print review
                 print "updating review"
                 review.visible = True
                 review.save()
+
+                # TODO si algun video tiene error, entonces fallo y hay que indicar reporte como fallo
 
 
 @receiver(pre_save, sender=Format)

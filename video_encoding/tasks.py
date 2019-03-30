@@ -76,6 +76,11 @@ def convert_video(fieldfile, force=False):
         except VideoEncodingError, e:
             # TODO handle with more care
             print "Encoding Error..."
+            print str(e)
+            video_format.conversion_error = True
+            video_format.conversion_error_msg = str(e)
+            video_format.save()
+
             if video_format.video:
                 review = Video_revision.objects.get_or_create(file=video_format.video)
                 review.status = 4

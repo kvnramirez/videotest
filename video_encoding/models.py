@@ -64,6 +64,11 @@ class Format(models.Model):
         verbose_name=_("Duration (s)"),
     )
 
+    conversion_error = models.BooleanField(verbose_name=_('Conversion error?'), default=False)
+
+    conversion_error_msg = models.CharField(verbose_name=_('Conversion error msg'), max_length=10000, blank=True,
+                                            default='')
+
     objects = FormatManager()
 
     class Meta:

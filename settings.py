@@ -26,7 +26,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'video_encoding',
     'media_library',
-    'django_rq'
+    'django_rq',
+    'django_ffmpeg'
 )
 
 MIDDLEWARE = (
@@ -119,6 +120,22 @@ RQ_QUEUES = {
         'PASSWORD': '',
         'DEFAULT_TIMEOUT': 360,
     }
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+        },
+    },
 }
 
 # VIDEO_ENCODING_FORMATS = {

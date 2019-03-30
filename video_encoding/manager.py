@@ -9,6 +9,9 @@ class FormatQuerySet(QuerySet):
     def complete(self):
         return self.filter(progress=100)
 
+    def fail(self):
+        return self.filter(conversion_error=True)
+
 
 class FormatManager(Manager.from_queryset(FormatQuerySet)):
     use_for_related_fields = True
