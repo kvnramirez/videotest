@@ -5,6 +5,7 @@ from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core.files import File
 
+from media_library.models import Video_revision
 from .backends import get_backend
 from .config import settings
 from .exceptions import VideoEncodingError
@@ -72,9 +73,16 @@ def convert_video(fieldfile, force=False):
                 except StopIteration:
                     break
                 video_format.update_progress(progress)
-        except VideoEncodingError:
+        except VideoEncodingError, e:
             # TODO handle with more care
             print "Encoding Error..."
+            if video_format.video:
+                review = Video_revision.objects.get_or_create(file=video_format.video)
+                review.status = 4
+                review.reason = 5
+                review.visible = True
+                review.conversion_error_msg = str(e)
+                review.save()
             video_format.delete()
             os.remove(target_path)
             continue

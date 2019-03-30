@@ -1,4 +1,6 @@
 from django.db.models.signals import post_save, pre_save
+
+from media_library.models import Video_revision
 from video_encoding.models import Format
 from django.dispatch import receiver
 
@@ -12,6 +14,18 @@ def format_post_save(sender, instance, **kwargs):
         print 'Progress:'
         print instance.progress
         print '----'
+        if instance.progress == 100:
+            print "video conversion finished, handle here"
+            print instance.video
+            if instance.video:
+                print "instance.video exists, getting review"
+                print instance.video.format_set.all()
+                review, created = Video_revision.objects.get_or_create(file=instance.video)
+                print "review got"
+                print review
+                print "updating review"
+                review.visible = True
+                review.save()
 
 
 @receiver(pre_save, sender=Format)

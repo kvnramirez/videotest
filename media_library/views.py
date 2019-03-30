@@ -15,7 +15,7 @@ class VideoFormView(CreateView):
     model = Video
     fields = ('file',)
 
-    success_url = '/'
+    success_url = '/video'
     template_name = 'video_form.html'
 
     def get_context_data(self, *args, **kwargs):
@@ -24,11 +24,11 @@ class VideoFormView(CreateView):
         return context
 
 
-
 def pending_review_list(request):
     """ Pending videos review list """
     paginate_by = 20
-    denuncias = Video_revision.objects.filter(revision=1).order_by('-create_date')  # asesorias pendientes
+    denuncias = Video_revision.objects.filter(visible=True).order_by(
+        '-create_date')  # videos convertidos/erroneos pendientes de revision
 
     paginator = Paginator(denuncias, paginate_by)
 
@@ -45,12 +45,11 @@ def pending_review_list(request):
 
 
 @receiver(post_save, sender=Video)
-def convert_video(sender, instance, **kwargs):
+def convert_video(sender, instance, created, **kwargs):
     enqueue(tasks.convert_all_videos,
             instance._meta.app_label,
             instance._meta.model_name,
             instance.pk)
-
-
-
-
+    if created:
+        print "new object, creating pending review"
+        Video_revision.objects.create(file=instance)

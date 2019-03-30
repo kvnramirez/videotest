@@ -1,3 +1,5 @@
+# https://alecaddd.com/davinci-resolve-ffmpeg-cheatsheet-for-linux/
+
 ------ Ubuntu -------
 # https://linuxize.com/post/how-to-install-ffmpeg-on-ubuntu-18-04/
 

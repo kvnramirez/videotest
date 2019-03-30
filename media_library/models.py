@@ -30,6 +30,12 @@ class Video(models.Model):
 
     format_set = GenericRelation(Format)
 
+    # Store mp4 version
+    video_mp4 = models.FileField(blank=True, default='')
+
+    # Store mov version
+    video_mov = models.FileField(blank=True, default='')
+
 
 class Video_revision(models.Model):
     """ Almacena videos a revisar para aprobacion """
@@ -41,12 +47,13 @@ class Video_revision(models.Model):
         (1, 'Pending'),
         (2, 'Reviewed'),
     )
-    revision = models.IntegerField(verbose_name=_('Revision date'), choices=revision_options, default=1)
+    revision = models.IntegerField(verbose_name=_('Revision status'), choices=revision_options, default=1)
 
     status_options = (
         (1, 'Pending'),
         (2, 'Approved'),
         (3, 'Rejected'),
+        (4, 'Error'),
     )
     status = models.IntegerField(verbose_name=_('Status'), choices=status_options, default=1)
 
@@ -55,10 +62,16 @@ class Video_revision(models.Model):
         (2, 'Nudity'),
         (3, 'Hate'),
         (4, 'Other'),
+        (5, 'Conversion error'),
     )
     reason = models.IntegerField(verbose_name=_('Reject reason'), choices=reason_options, default=1)
 
     other = models.CharField(verbose_name=_('Other reason'), max_length=2000, blank=True, default='')
+
+    visible = models.BooleanField(verbose_name=_('Is visible?'), default=False)
+
+    conversion_error_msg = models.CharField(verbose_name=_('Conversion error msg'), max_length=10000, blank=True,
+                                            default='')
 
     class Meta:
         verbose_name = _('Video review')
