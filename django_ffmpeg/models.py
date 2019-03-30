@@ -30,6 +30,7 @@ CONVERTING_COMMAND_MATCH_CHOICES = (
     ('name', _('File name')),
 )
 
+
 class ConvertingCommand(models.Model):
     '''
     System commands for convertion videos to desired format
@@ -51,16 +52,16 @@ class ConvertingCommand(models.Model):
     )
     command = models.TextField(
         verbose_name=_('System command to convert video'),
-        help_text = 'Example: /usr/bin/ffmpeg -nostats -y -i %(input_file)s -acodec libmp3lame -ar 44100 -f flv %(output_file)s',
+        help_text='Example: /usr/bin/ffmpeg -nostats -y -i %(input_file)s -acodec libmp3lame -ar 44100 -f flv %(output_file)s',
     )
     convert_extension = models.CharField(
         max_length=5,
         verbose_name=_('Extension'),
-        help_text = _('Without dot: `.`'),
+        help_text=_('Without dot: `.`'),
     )
     thumb_command = models.TextField(
         verbose_name=_('System command to convert thumb'),
-        help_text = 'Example: /usr/bin/ffmpeg -hide_banner -nostats -i %(in_file)s -y -frames:v 1 -ss %(thumb_frame)s %(out_file)s',
+        help_text='Example: /usr/bin/ffmpeg -hide_banner -nostats -i %(in_file)s -y -frames:v 1 -ss %(thumb_frame)s %(out_file)s',
     )
 
     def __unicode__(self):
@@ -78,7 +79,8 @@ VIDEO_CONVERSION_STATUS_CHOICES = (
     ('error', _('Not converted due to error')),
 )
 
-class Video(models.Model):
+
+class ConvertVideo(models.Model):
     '''
     Uploaded video
     '''
@@ -134,7 +136,7 @@ class Video(models.Model):
     convert_extension = models.CharField(
         max_length=5,
         verbose_name=_('Extension'),
-        help_text = _('Without dot: `.`'),
+        help_text=_('Without dot: `.`'),
         null=True, editable=False,
     )
 

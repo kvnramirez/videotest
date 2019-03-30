@@ -8,7 +8,7 @@ from django.forms import CheckboxSelectMultiple
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
-from .models import ConvertingCommand, Video
+from .models import ConvertingCommand, ConvertVideo
 
 
 class AdminVideoWidget(AdminFileWidget):
@@ -28,7 +28,7 @@ class AdminVideoWidget(AdminFileWidget):
 
 class VideoAdminForm(ModelForm):
     class Meta:
-        model = Video
+        model = ConvertVideo
         fields = '__all__'
         widgets = {
             'video': AdminVideoWidget,
@@ -58,7 +58,7 @@ class VideoAdmin(admin.ModelAdmin):
             obj.user = request.user
         super(VideoAdmin, self).save_model(request, obj, form, change)
 
-admin.site.register(Video, VideoAdmin)
+admin.site.register(ConvertVideo, VideoAdmin)
 
 
 class ConvertingCommandAdmin(admin.ModelAdmin): pass
