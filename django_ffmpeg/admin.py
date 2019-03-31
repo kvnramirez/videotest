@@ -45,7 +45,7 @@ class VideoAdmin(admin.ModelAdmin):
     list_display_links = ('title_repr',)
     readonly_fields = ('convert_status', 'last_convert_msg', 'convert_extension')
     form = VideoAdminForm
-    actions = [reconvert_video]
+    # actions = [reconvert_video]
 
     def title_repr(self, obj):
         return str(obj)

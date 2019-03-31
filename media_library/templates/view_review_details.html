@@ -1,0 +1,52 @@
+{% load static %}
+{% load i18n %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Review details</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+    <form class="form-horizontal form-bordered" action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <fieldset>
+
+            {% with form.revision as field %}
+                <div class="form-group col-md-6 col-md-offset-2 {% if field.errors %}has-error{% endif %}">
+                    <label class="col-md-4 control-label" for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+                    <div class="col-md-8">
+                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <i class="fa fa-user"></i>
+                                            </span>
+                            {{ field }}
+                        </div>
+                        {% if field.errors %}
+                            <span class="help-block">
+                                                {{ field.errors.as_text }}
+                                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endwith %}
+
+        </fieldset>
+
+    </form>
+
+
+</div>
+
+</body>
+</html>

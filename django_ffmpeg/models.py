@@ -93,6 +93,16 @@ class ConvertVideo(models.Model):
         verbose_name=_('Video file'),
         upload_to=video_file_path,
     )
+    output_video_mp4 = models.FileField(
+        verbose_name=_('MP4 Video file'),
+        upload_to=video_file_path,
+        null=True
+    )
+    output_video_mov = models.FileField(
+        verbose_name=_('MOV Video file'),
+        upload_to=video_file_path,
+        null=True
+    )
     thumb = models.ImageField(
         verbose_name=_('Thumbnail image'),
         upload_to=thumb_file_path,
@@ -123,6 +133,7 @@ class ConvertVideo(models.Model):
     last_convert_msg = models.TextField(
         verbose_name=_('Message from last converting command'),
     )
+    # TODO change user model
     user = models.ForeignKey(
         User,
         verbose_name=_('Uploaded by'),
@@ -139,6 +150,24 @@ class ConvertVideo(models.Model):
         help_text=_('Without dot: `.`'),
         null=True, editable=False,
     )
+
+    # For manual video validation
+    revision_options = (
+        (1, _('Pending')),
+        (2, _('Reviewed')),
+    )
+    revision = models.IntegerField(verbose_name=_('Revision status'), choices=revision_options, default=1)
+
+    reason_options = (
+        (1, _('Violence')),
+        (2, _('Nudity')),
+        (3, _('Hate')),
+        (4, _('Other')),
+        (5, _('Conversion error')),
+    )
+    reason = models.IntegerField(verbose_name=_('Reject reason'), choices=reason_options, default=4)
+
+    other = models.CharField(verbose_name=_('Other reason'), max_length=2000, blank=True, default='')
 
     @property
     def converted_path(self):
@@ -158,5 +187,5 @@ class ConvertVideo(models.Model):
         return self.title or u'Without title #%s' % self.pk
 
     class Meta:
-        verbose_name = _('Video')
-        verbose_name_plural = _('Videos')
+        verbose_name = _('Review Video')
+        verbose_name_plural = _('Review Videos')

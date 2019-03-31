@@ -15,7 +15,7 @@
 
 <div class="container">
 
-    <h2>Bordered Table</h2>
+    <h2>Videos to review</h2>
     <p>The .table-bordered class adds borders to a table:</p>
 
     {% if reviews %}
@@ -23,10 +23,11 @@
             <thead>
             <tr>
                 <th>ID</th>
-                <th>Status</th>
-                <th>Revision</th>
-                <th>Files</th>
-                <th>Visible</th>
+                <th>Revision Status</th>
+                <th>Conversion Status</th>
+                <th>Created at</th>
+                <th>Converted at</th>
+                <th>User</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -35,20 +36,14 @@
             {% for review in reviews %}
                 <tr>
                     <td>{{ review.pk }}</td>
-                    <td>{{ review.get_status_display }}</td>
-                    <td>{{ review.get_revision_display }}</td>
+                    <td>{{ review.get_revision_display|default_if_none:"----" }}</td>
+                    <td>{{ review.convert_status }}</td>
+                    <td>{{ review.created_at|default_if_none:"----" }}</td>
+                    <td>{{ review.converted_at|default_if_none:"----" }}</td>
+                    <td>{{ review.user }}</td>
                     <td>
-                        {% for video in review.file.format_set.complete.all %}
-                            Video: {{ video }}<br>
-                            (Duration: {{ video.duration }}s, {{ video.width }}x{{ video.height }})<br>
-                            <br>
-                        {% endfor %}
-                    </td>
-                    <td>
-                        {{ review.visible }}
-                    </td>
-                    <td>
-                        <a href="#">Edit</a>
+                        <a href="{% url 'view_review_details' review.pk %}" class="btn btn-sm btn-primary"
+                           data-original-title="{% trans 'Review video' %}">Edit</a>
                     </td>
                 </tr>
             {% endfor %}
