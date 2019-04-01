@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 @receiver(post_save, sender=ConvertVideo)
 def format_post_save(sender, instance, created, **kwargs):
-    print 'Format post_save'
+    # print 'Format post_save'
     if created:  # new object will be created
         print "New video uploaded..."
         # review, created = Video_revision.objects.get_or_create(file=instance.video)

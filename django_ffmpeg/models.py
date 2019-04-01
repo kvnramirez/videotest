@@ -96,12 +96,14 @@ class ConvertVideo(models.Model):
     output_video_mp4 = models.FileField(
         verbose_name=_('MP4 Video file'),
         upload_to=video_file_path,
-        null=True
+        null=True,
+        blank=True
     )
     output_video_mov = models.FileField(
         verbose_name=_('MOV Video file'),
         upload_to=video_file_path,
-        null=True
+        null=True,
+        blank=True
     )
     thumb = models.ImageField(
         verbose_name=_('Thumbnail image'),
@@ -122,17 +124,37 @@ class ConvertVideo(models.Model):
     )
     convert_status = models.CharField(
         max_length=16,
-        verbose_name=_('Video conversion status'),
+        verbose_name=_('MP4 Video conversion status'),
+        choices=VIDEO_CONVERSION_STATUS_CHOICES,
+        default='pending',
+    )
+    convert_status_mov = models.CharField(
+        max_length=16,
+        verbose_name=_('MOV Video conversion status'),
         choices=VIDEO_CONVERSION_STATUS_CHOICES,
         default='pending',
     )
     converted_at = models.DateTimeField(
-        verbose_name=_('Convert time'),
+        verbose_name=_('Convert time MP4'),
+        editable=False, null=True, blank=True,
+    )
+    converted_mov_at = models.DateTimeField(
+        verbose_name=_('Convert time MOV'),
         editable=False, null=True, blank=True,
     )
     last_convert_msg = models.TextField(
-        verbose_name=_('Message from last converting command'),
+        verbose_name=_('MP4 Message from last converting command'),
+        null=True, blank=True,
     )
+
+    last_convert_msg_mov = models.TextField(
+        verbose_name=_('MOV Message from last converting command'),
+        null=True, blank=True,
+    )
+
+    # success_mp4 = models.BooleanField(verbose_name=_('Conversion success for MP4?'), default=False)
+    #
+    # success_mov = models.BooleanField(verbose_name=_('Conversion success for MOV?'), default=False)
     # TODO change user model
     user = models.ForeignKey(
         User,
@@ -147,6 +169,12 @@ class ConvertVideo(models.Model):
     convert_extension = models.CharField(
         max_length=5,
         verbose_name=_('Extension'),
+        help_text=_('Without dot: `.`'),
+        null=True, editable=False,
+    )
+    convert_extension_2 = models.CharField(
+        max_length=5,
+        verbose_name=_('Extension 2'),
         help_text=_('Without dot: `.`'),
         null=True, editable=False,
     )
@@ -176,6 +204,18 @@ class ConvertVideo(models.Model):
         filepath = self.video.path
         filepath = filepath.replace(FFMPEG_ORIG_VIDEO, FFMPEG_CONV_VIDEO)
         return re.sub(r'[^\.]{1,10}$', self.convert_extension, filepath)
+
+    @property
+    def converted_path_mov(self):
+        filepath = self.video.path
+        filepath = filepath.replace(FFMPEG_ORIG_VIDEO, FFMPEG_CONV_VIDEO)
+        return re.sub(r'[^\.]{1,10}$', 'mov', filepath)
+
+    @property
+    def converted_path_mp4(self):
+        filepath = self.video.path
+        filepath = filepath.replace(FFMPEG_ORIG_VIDEO, FFMPEG_CONV_VIDEO)
+        return re.sub(r'[^\.]{1,10}$', 'mp4', filepath)
 
     @property
     def thumb_video_path(self):

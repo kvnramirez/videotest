@@ -17,12 +17,18 @@ class AdminVideoWidget(AdminFileWidget):
         if u'<a href' in html:
             parts = html.split('<br />')
             html = u'<p class="file-upload">'
-            if value.instance.convert_status == 'converted':
-                html += _('Video %(path)s converted<br />') % {'path':value}
+            if value.instance.convert_status == 'converted' and value.instance.convert_status_mov == 'converted':
+                html += _('Video %(path)s converted to MOV and MP4<br />') % {'path': value}
+            elif value.instance.convert_status == 'converted' and not value.instance.convert_status_mov == 'converted':
+                # html += _('Video %(path)s not converted yet<br />') % {'path':value}
+                html += _('Video %(path)s converted to MP4 but no MOV<br />') % {'path': value}
+            elif not value.instance.convert_status == 'converted' and value.instance.convert_status_mov == 'converted':
+                # html += _('Video %(path)s not converted yet<br />') % {'path':value}
+                html += _('Video %(path)s converted to MOV but no MP4<br />') % {'path': value}
             else:
-                html += _('Video %(path)s not converted yet<br />') % {'path':value}
+                html += _('Video %(path)s not converted yet<br />') % {'path': value}
 
-            html = mark_safe(html+parts[1])
+            html = mark_safe(html + parts[1])
         return html
 
 
@@ -37,18 +43,24 @@ class VideoAdminForm(ModelForm):
 
 def reconvert_video(modeladmin, request, queryset):
     queryset.update(convert_status='pending')
+
+
 reconvert_video.short_description = _('Convert again')
 
 
 class VideoAdmin(admin.ModelAdmin):
     list_display = ('title_repr', 'created_at', 'convert_status', 'converted_at')
     list_display_links = ('title_repr',)
-    readonly_fields = ('convert_status', 'last_convert_msg', 'convert_extension')
+    readonly_fields = (
+        'convert_extension', 'convert_status', 'last_convert_msg', 'convert_extension_2', 'convert_status_mov',
+        'last_convert_msg_mov')
     form = VideoAdminForm
+
     # actions = [reconvert_video]
 
     def title_repr(self, obj):
         return str(obj)
+
     title_repr.short_description = _('Title')
 
     def save_model(self, request, obj, form, change):
@@ -58,9 +70,11 @@ class VideoAdmin(admin.ModelAdmin):
             obj.user = request.user
         super(VideoAdmin, self).save_model(request, obj, form, change)
 
+
 admin.site.register(ConvertVideo, VideoAdmin)
 
 
 class ConvertingCommandAdmin(admin.ModelAdmin): pass
+
 
 admin.site.register(ConvertingCommand, ConvertingCommandAdmin)

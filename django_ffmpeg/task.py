@@ -23,7 +23,12 @@ def convert_instance(format, video):
     # except IndexError:
     #     logger.info('No video found. Bypassing call...')
     #     return
-    video.convert_status = 'started'
+
+    if vid_ext == "mov":
+        video.convert_status_mov = 'started'
+    else:
+        video.convert_status = 'started'
+    # video.convert_status = 'started'
     video.save()
 
     # Choosing converting command
@@ -47,13 +52,22 @@ def convert_instance(format, video):
 
     if not vid_command:
         logger.error('Conversion command not found...')
-        video.convert_status = 'error'
-        video.last_convert_msg = 'Conversion command not found'
+        # video.convert_status = 'error'
+        if vid_ext == "mov":
+            video.convert_status_mov = 'error'
+            video.last_convert_msg_mov = 'Conversion command not found'
+        else:
+            video.convert_status = 'error'
+            video.last_convert_msg = 'Conversion command not found'
+        # video.last_convert_msg = 'Conversion command not found'
         video.save()
         return
 
     # Convert video
-    video.convert_extension = vid_ext
+    if vid_ext == "mov":
+        video.convert_extension_2 = vid_ext
+    else:
+        video.convert_extension = vid_ext
     try:
         c = vid_command % {
             'input_file': filepath,
@@ -64,8 +78,14 @@ def convert_instance(format, video):
         logger.info('Converting video result: %s' % output)
     except Exception as e:
         logger.error('Converting video error', exc_info=True)
-        video.convert_status = 'error'
-        video.last_convert_msg = u'Exception while converting'
+        if vid_ext == "mov":
+            video.convert_status_mov = 'error'
+            video.last_convert_msg_mov = u'Exception while converting'
+        else:
+            video.convert_status = 'error'
+            video.last_convert_msg = u'Exception while converting'
+        # video.convert_status = 'error'
+        # video.last_convert_msg = u'Exception while converting'
         video.save()
         raise
 
@@ -82,9 +102,23 @@ def convert_instance(format, video):
     except:
         logger.error('Converting thumb error', exc_info=True)
 
-    video.convert_status = 'converted'
-    video.last_convert_msg = repr(output).replace('\\n', '\n').strip('\'')
-    video.converted_at = datetime.datetime.now(tz=timezone('UTC'))
+    if vid_ext == "mov":
+        video.convert_status_mov = 'converted'
+        video.last_convert_msg_mov = repr(output).replace('\\n', '\n').strip('\'')
+        video.converted_mov_at = datetime.datetime.now(tz=timezone('UTC'))
+        video.output_video_mov.name = video.converted_path_mov
+    else:
+        video.convert_status = 'converted'
+        video.last_convert_msg = repr(output).replace('\\n', '\n').strip('\'')
+        video.converted_at = datetime.datetime.now(tz=timezone('UTC'))
+        video.output_video_mp4.name = video.converted_path_mp4
+    # video.convert_status = 'converted'
+    # video.last_convert_msg = repr(output).replace('\\n', '\n').strip('\'')
+    # if vid_ext == "mov":
+    #     video.converted_mov_at = datetime.datetime.now(tz=timezone('UTC'))
+    # else:
+    #     video.converted_at = datetime.datetime.now(tz=timezone('UTC'))
+    # video.converted_at = datetime.datetime.now(tz=timezone('UTC'))
     video.save()
 
 

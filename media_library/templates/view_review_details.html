@@ -15,12 +15,64 @@
 
 <div class="container">
 
+    <h1>Reviewing uploaded video</h1>
+
     <form class="form-horizontal form-bordered" action="." method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
         <fieldset>
 
+            {% if form.instance.video %}
+                {{ form.instance.video }}
+            {% endif %}
+
+            {{ form.instance.output_video_mp4 }}
+
+            {{ form.instance.output_video_mov }}
+
             {% with form.revision as field %}
+                <div class="form-group col-md-6 col-md-offset-2 {% if field.errors %}has-error{% endif %}">
+                    <label class="col-md-4 control-label" for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+                    <div class="col-md-8">
+                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <i class="fa fa-user"></i>
+                                            </span>
+                            {{ field }}
+                        </div>
+                        {% if field.errors %}
+                            <span class="help-block">
+                                                {{ field.errors.as_text }}
+                                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endwith %}
+
+            {% with form.reason as field %}
+                <div class="form-group col-md-6 col-md-offset-2 {% if field.errors %}has-error{% endif %}">
+                    <label class="col-md-4 control-label" for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+                    <div class="col-md-8">
+                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <i class="fa fa-user"></i>
+                                            </span>
+                            {{ field }}
+                        </div>
+                        {% if field.errors %}
+                            <span class="help-block">
+                                                {{ field.errors.as_text }}
+                                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endwith %}
+
+            {% with form.other as field %}
                 <div class="form-group col-md-6 col-md-offset-2 {% if field.errors %}has-error{% endif %}">
                     <label class="col-md-4 control-label" for="{{ field.id_for_label }}">
                         {{ field.label }}
@@ -44,6 +96,23 @@
         </fieldset>
 
     </form>
+
+    <hr>
+    <h2>Conversion details:</h2>
+
+    {% if form.instance.convert_status %}
+        <b>Convert status: </b>{{ form.instance.get_convert_status_display }}<br>
+    {% endif %}
+    {% if form.instance.converted_at %}
+        <b>Convert at: </b>{{ form.instance.converted_at }}<br>
+    {% endif %}
+    {% if form.instance.last_convert_msg %}
+        <b>Last conversion message: </b><br>
+        {{ form.instance.last_convert_msg }}<br>
+    {% endif %}
+    {% if form.instance.meta_info %}
+        <b>Meta info: </b>{{ form.instance.meta_info }}<br>
+    {% endif %}
 
 
 </div>
