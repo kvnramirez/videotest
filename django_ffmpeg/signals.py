@@ -12,10 +12,10 @@ import time
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from django_ffmpeg.task import convert_instance
-from django_ffmpeg.utils import Converter
+from django_ffmpeg.task import convert_instance, convert_video
+# from django_ffmpeg.utils import Converter
 
-from django_ffmpeg.models import ConvertVideo
+from django_ffmpeg.models import ConvertVideo, EnqueuedVideo
 from media_library.models import Video_revision
 import logging
 from django_rq import enqueue
@@ -39,9 +39,18 @@ def format_post_save(sender, instance, created, **kwargs):
         # Extensions to convert
         extensions = ['mp4', 'mov']
         for format in FORMATS:
+             # TODO enqueue video no se relaciona con convertvideo, arreglar
+             # TODO video se sube dos veces, arreglar
+            video_enqueue = EnqueuedVideo.objects.create(convert_extension=format['extension'],
+                                                         command=format['command'],
+                                                         thumb_command=format['thumb_command'])
+            print "instance pk: %s" % instance.pk
+            instance.enqueue.add(video_enqueue)
+            instance.save()
+            print instance.enqueue.all()
             print "Enqueing: %s" % format['extension']
             start = time.time()
-            enqueue(convert_instance, format, instance)
+            enqueue(convert_video, instance, video_enqueue)
             # Converter().convert_instance(format, instance)
             logger.info('Job finished at: %s s' % (time.time() - start))
 

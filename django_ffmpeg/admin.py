@@ -8,28 +8,30 @@ from django.forms import CheckboxSelectMultiple
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
-from .models import ConvertingCommand, ConvertVideo
+# from .models import ConvertingCommand, ConvertVideo
+from .models import ConvertVideo
 
 
 class AdminVideoWidget(AdminFileWidget):
-    def render(self, name, value, attrs=None):
-        html = super(AdminVideoWidget, self).render(name, value, attrs)
-        if u'<a href' in html:
-            parts = html.split('<br />')
-            html = u'<p class="file-upload">'
-            if value.instance.convert_status == 'converted' and value.instance.convert_status_mov == 'converted':
-                html += _('Video %(path)s converted to MOV and MP4<br />') % {'path': value}
-            elif value.instance.convert_status == 'converted' and not value.instance.convert_status_mov == 'converted':
-                # html += _('Video %(path)s not converted yet<br />') % {'path':value}
-                html += _('Video %(path)s converted to MP4 but no MOV<br />') % {'path': value}
-            elif not value.instance.convert_status == 'converted' and value.instance.convert_status_mov == 'converted':
-                # html += _('Video %(path)s not converted yet<br />') % {'path':value}
-                html += _('Video %(path)s converted to MOV but no MP4<br />') % {'path': value}
-            else:
-                html += _('Video %(path)s not converted yet<br />') % {'path': value}
-
-            html = mark_safe(html + parts[1])
-        return html
+    pass
+    # def render(self, name, value, attrs=None):
+    #     html = super(AdminVideoWidget, self).render(name, value, attrs)
+    #     if u'<a href' in html:
+    #         parts = html.split('<br />')
+    #         html = u'<p class="file-upload">'
+    #         if value.instance.convert_status == 'converted' and value.instance.convert_status_mov == 'converted':
+    #             html += _('Video %(path)s converted to MOV and MP4<br />') % {'path': value}
+    #         elif value.instance.convert_status == 'converted' and not value.instance.convert_status_mov == 'converted':
+    #             # html += _('Video %(path)s not converted yet<br />') % {'path':value}
+    #             html += _('Video %(path)s converted to MP4 but no MOV<br />') % {'path': value}
+    #         elif not value.instance.convert_status == 'converted' and value.instance.convert_status_mov == 'converted':
+    #             # html += _('Video %(path)s not converted yet<br />') % {'path':value}
+    #             html += _('Video %(path)s converted to MOV but no MP4<br />') % {'path': value}
+    #         else:
+    #             html += _('Video %(path)s not converted yet<br />') % {'path': value}
+    #
+    #         html = mark_safe(html + parts[1])
+    #     return html
 
 
 class VideoAdminForm(ModelForm):
@@ -49,11 +51,13 @@ reconvert_video.short_description = _('Convert again')
 
 
 class VideoAdmin(admin.ModelAdmin):
-    list_display = ('title_repr', 'created_at', 'convert_status', 'converted_at')
+    # list_display = ('title_repr', 'created_at', 'convert_status', 'converted_at')
+    list_display = ('title_repr', 'created_at')
     list_display_links = ('title_repr',)
-    readonly_fields = (
-        'convert_extension', 'convert_status', 'last_convert_msg', 'convert_extension_2', 'convert_status_mov',
-        'last_convert_msg_mov')
+    # readonly_fields = (
+    #     'convert_extension', 'convert_status', 'last_convert_msg', 'convert_extension_2', 'convert_status_mov',
+    #     'last_convert_msg_mov')
+    # readonly_fields = ('enqueue',)
     form = VideoAdminForm
 
     # actions = [reconvert_video]
@@ -73,8 +77,7 @@ class VideoAdmin(admin.ModelAdmin):
 
 admin.site.register(ConvertVideo, VideoAdmin)
 
-
-class ConvertingCommandAdmin(admin.ModelAdmin): pass
-
-
-admin.site.register(ConvertingCommand, ConvertingCommandAdmin)
+# class ConvertingCommandAdmin(admin.ModelAdmin): pass
+#
+#
+# admin.site.register(ConvertingCommand, ConvertingCommandAdmin)
