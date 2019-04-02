@@ -3,7 +3,9 @@
 import datetime
 import logging
 import os
-from django_ffmpeg.models import ConvertVideo
+import re
+
+from django_ffmpeg.models import ConvertVideo, EnqueuedVideo
 from pytz import timezone
 
 logger = logging.getLogger(__name__)
@@ -16,8 +18,6 @@ def convert_instance(format, video):
     if not video:
         logger.info('No video found. Bypassing call...')
         return
-
-    # TODO obtener objeto format y video con get
 
     # # Choosing one unconverted video
     # try:
@@ -124,17 +124,27 @@ def convert_instance(format, video):
     video.save()
 
 
-def convert_video(original_video, enqueue_video):
-    if not enqueue_video:
-        logger.info('No video enqueue found. Bypassing call...')
-        return
-    if not original_video:
+def convert_video(convert_video_id, enqueue_video_id):
+
+    try:
+        convert_video_object = ConvertVideo.objects.get(pk=convert_video_id)
+    except IndexError:
         logger.info('No original video found. Bypassing call...')
         return
+
+    try:
+        enqueue_video = EnqueuedVideo.objects.get(pk=enqueue_video_id)
+    except IndexError:
+        logger.info('No enqueue video found. Bypassing call...')
+        return
+
     video_extension = enqueue_video.convert_extension
     video_command = enqueue_video.command
     video_thumb_command = enqueue_video.thumb_command
-    video = original_video.video
+
+    video = convert_video_object.video
+
+    # enqueue video change status
     enqueue_video.convert_status = 'started'
     enqueue_video.save()
 
@@ -154,11 +164,10 @@ def convert_video(original_video, enqueue_video):
         enqueue_video.save()
         return
 
-    # TODO cambiar video.converted_path por el correcto
     try:
         c = video_command % {
             'input_file': filepath,
-            'output_file': video.converted_path,
+            'output_file': converted_path(video_extension, convert_video_object),
         }
         logger.info('Converting video command: %s' % c)
         output = _cli(c)
@@ -170,13 +179,12 @@ def convert_video(original_video, enqueue_video):
         enqueue_video.save()
         raise
 
-    # TODO cambiar video.thumb_video_path por el correcto
     # Convert thumb
     try:
         if not enqueue_video.thumb:
             cmd = video_thumb_command % {
                 'in_file': filepath,
-                'out_file': video.thumb_video_path,
+                'out_file': thumb_video_path(convert_video_object),
                 'thumb_frame': enqueue_video.thumb_frame,
             }
             _cli(cmd, True)
@@ -184,15 +192,46 @@ def convert_video(original_video, enqueue_video):
     except:
         logger.error('Converting thumb error', exc_info=True)
 
-    # TODO cambiar video.converted_path_mp4 por el correcto
     enqueue_video.convert_status = 'converted'
     enqueue_video.last_convert_msg = repr(output).replace('\\n', '\n').strip('\'')
     enqueue_video.converted_at = datetime.datetime.now(tz=timezone('UTC'))
-    enqueue_video.converted_video.name = video.converted_path_mp4
+    enqueue_video.converted_video.name = converted_path(video_extension, convert_video_object)
     video.save()
 
 
+def converted_path(convert_extension, original_video):
+    """
+    Generate new path for converted video
+    :param convert_extension: extension of output file
+    :param original_video: original video object to extract filepath
+    :return: new path to use
+    """
+    if not convert_extension:
+        return None
+    filepath = original_video.video.path
+    filepath.replace('_original', '_x264')
+    print re.sub(r'[^\.]{1,10}$', convert_extension, filepath)
+    return re.sub(r'[^\.]{1,10}$', convert_extension, filepath)
+
+
+def thumb_video_path(original_video):
+        """
+        Generate new path for video thumbnail
+        :param original_video: original video object to extract filepath
+        :return: new path to use
+        """
+        filepath = original_video.video.path
+        filepath.replace('_original', '_thumb')
+        return re.sub(r'[^\.]{1,10}$', 'jpg', filepath)
+
+
 def _cli(cmd, without_output=False):
+    """
+    Pass command to command line interface
+    :param cmd: command to execute in command line interface
+    :param without_output:
+    :return: cli message output
+    """
     if os.name == 'posix':
         import commands
         return commands.getoutput(cmd)

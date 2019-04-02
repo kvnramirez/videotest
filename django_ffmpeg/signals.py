@@ -50,8 +50,7 @@ def format_post_save(sender, instance, created, **kwargs):
             print instance.enqueue.all()
             print "Enqueing: %s" % format['extension']
             start = time.time()
-             # TODO pasar id de instancia y de enqueuevideo
-            enqueue(convert_video, instance, video_enqueue)
+            enqueue(convert_video, instance.pk, video_enqueue.pk)
             # Converter().convert_instance(format, instance)
             logger.info('Job finished at: %s s' % (time.time() - start))
 
