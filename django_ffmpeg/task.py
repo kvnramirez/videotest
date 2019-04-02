@@ -129,6 +129,9 @@ def convert_video(convert_video_id, enqueue_video_id):
     print "ConvertVideo pk: %s" % convert_video_id
     print "EnqueuedVideo pk: %s" % enqueue_video_id
 
+    logger.info('ConvertVideo pk: %s' % convert_video_id)
+    logger.info('EnqueuedVideo pk: %s' % enqueue_video_id)
+
     try:
         convert_video_object = ConvertVideo.objects.get(pk=convert_video_id)
     except ConvertVideo.DoesNotExist:
@@ -167,6 +170,8 @@ def convert_video(convert_video_id, enqueue_video_id):
         enqueue_video.save()
         return
 
+    logger.info('output video filepath: %s' % converted_path(video_extension, convert_video_object))
+
     try:
         c = video_command % {
             'input_file': filepath,
@@ -182,6 +187,8 @@ def convert_video(convert_video_id, enqueue_video_id):
         enqueue_video.save()
         raise
 
+    logger.info('output thumb filepath: %s' % thumb_video_path(convert_video_object))
+
     # Convert thumb
     try:
         if not enqueue_video.thumb:
@@ -194,6 +201,8 @@ def convert_video(convert_video_id, enqueue_video_id):
             logger.info('Creating thumbnail command: %s' % cmd)
     except:
         logger.error('Converting thumb error', exc_info=True)
+
+    logger.info('Success, video converted with extension: %s' % video_extension)
 
     enqueue_video.convert_status = 'converted'
     enqueue_video.last_convert_msg = repr(output).replace('\\n', '\n').strip('\'')
