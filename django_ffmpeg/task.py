@@ -17,6 +17,8 @@ def convert_instance(format, video):
         logger.info('No video found. Bypassing call...')
         return
 
+    # TODO obtener objeto format y video con get
+
     # # Choosing one unconverted video
     # try:
     #     video = ConvertVideo.objects.filter(convert_status='pending')[0]
