@@ -25,10 +25,8 @@ logger = logging.getLogger(__name__)
 
 @receiver(post_save, sender=ConvertVideo)
 def format_post_save(sender, instance, created, **kwargs):
-    # print 'Format post_save'
     if created:  # new object will be created
         print "New video uploaded..."
-        # review, created = Video_revision.objects.get_or_create(file=instance.video)
         FORMATS = [{'extension': 'mp4',
                     'command': '/usr/bin/ffmpeg -hide_banner -nostats -i %(input_file)s -target film-dvd %(output_file)s',
                     'thumb_command': '/usr/bin/ffmpeg -hide_banner -nostats -i %(in_file)s -y -frames:v 1 -ss %(thumb_frame)s %(out_file)s'},
@@ -36,8 +34,6 @@ def format_post_save(sender, instance, created, **kwargs):
                     'command': '/usr/bin/ffmpeg -hide_banner -nostats -i %(input_file)s -target film-dvd %(output_file)s',
                     'thumb_command': '/usr/bin/ffmpeg -hide_banner -nostats -i %(in_file)s -y -frames:v 1 -ss %(thumb_frame)s %(out_file)s'}
                    ]
-        # Extensions to convert
-        extensions = ['mp4', 'mov']
         for format in FORMATS:
              # TODO enqueue video no se relaciona con convertvideo, arreglar
              # TODO video se sube dos veces, arreglar

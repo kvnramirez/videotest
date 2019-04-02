@@ -128,13 +128,13 @@ def convert_video(convert_video_id, enqueue_video_id):
 
     try:
         convert_video_object = ConvertVideo.objects.get(pk=convert_video_id)
-    except IndexError:
+    except ConvertVideo.DoesNotExist:
         logger.info('No original video found. Bypassing call...')
         return
 
     try:
         enqueue_video = EnqueuedVideo.objects.get(pk=enqueue_video_id)
-    except IndexError:
+    except EnqueuedVideo.DoesNotExist:
         logger.info('No enqueue video found. Bypassing call...')
         return
 
@@ -196,7 +196,7 @@ def convert_video(convert_video_id, enqueue_video_id):
     enqueue_video.last_convert_msg = repr(output).replace('\\n', '\n').strip('\'')
     enqueue_video.converted_at = datetime.datetime.now(tz=timezone('UTC'))
     enqueue_video.converted_video.name = converted_path(video_extension, convert_video_object)
-    video.save()
+    enqueue_video.save()
 
 
 def converted_path(convert_extension, original_video):
