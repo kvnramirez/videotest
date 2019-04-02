@@ -126,6 +126,9 @@ def convert_instance(format, video):
 
 def convert_video(convert_video_id, enqueue_video_id):
 
+    print "ConvertVideo pk: %s" % convert_video_id
+    print "EnqueuedVideo pk: %s" % enqueue_video_id
+
     try:
         convert_video_object = ConvertVideo.objects.get(pk=convert_video_id)
     except ConvertVideo.DoesNotExist:

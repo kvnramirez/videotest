@@ -100,6 +100,7 @@ class EnqueuedVideo(models.Model):
         verbose_name=_('Converted Video file'),
         upload_to=video_file_path,
         null=True,
+        blank=True
     )
     thumb = models.ImageField(
         verbose_name=_('Thumbnail image'),
@@ -136,6 +137,7 @@ class EnqueuedVideo(models.Model):
         verbose_name=_('Meta info about video'),
         null=True,
         editable=False,
+        blank=True
     )
     convert_extension = models.CharField(
         max_length=5,
