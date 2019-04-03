@@ -181,10 +181,13 @@ def convert_video(convert_video_id, enqueue_video_id):
             'output_file': converted_path(video_extension, convert_video_object),
         }
         logger.info('Converting video command: %s' % c)
+        print 'Converting video command: %s' % c
         output = _cli(c)
         logger.info('Converting video result: %s' % output)
     except Exception as e:
         logger.error('Converting video error', exc_info=True)
+        print 'Converting video error'
+        print(e)
         enqueue_video.convert_status = 'error'
         enqueue_video.last_convert_msg = u'Exception while converting'
         enqueue_video.save()
@@ -203,8 +206,10 @@ def convert_video(convert_video_id, enqueue_video_id):
             }
             _cli(cmd, True)
             logger.info('Creating thumbnail command: %s' % cmd)
+            print 'Creating thumbnail command: %s' % cmd
     except:
         logger.error('Converting thumb error', exc_info=True)
+        print 'Converting thumb error'
 
     # logger.info('Success, video converted with extension: %s' % video_extension)
     print 'Success, video converted with extension: %s' % video_extension
