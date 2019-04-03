@@ -3,20 +3,20 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import django_ffmpeg.models
+import cffmpeg.models
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('django_ffmpeg', '0002_auto_20190401_0421'),
+        ('cffmpeg', '0002_auto_20190401_0421'),
     ]
 
     operations = [
         migrations.AlterField(
             model_name='convertvideo',
             name='video',
-            field=models.FileField(upload_to=django_ffmpeg.models.upload_reformat_name, verbose_name='Video file'),
+            field=models.FileField(upload_to=cffmpeg.models.upload_reformat_name, verbose_name='Video file'),
         ),
         migrations.AlterField(
             model_name='enqueuedvideo',
@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='enqueuedvideo',
             name='converted_video',
-            field=models.FileField(null=True, upload_to=django_ffmpeg.models.video_file_path, verbose_name='Converted Video file'),
+            field=models.FileField(null=True, upload_to=cffmpeg.models.video_file_path, verbose_name='Converted Video file'),
         ),
         migrations.AlterField(
             model_name='enqueuedvideo',

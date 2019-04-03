@@ -5,7 +5,7 @@ import logging
 import os
 import re
 
-from django_ffmpeg.models import ConvertVideo, EnqueuedVideo
+from cffmpeg.models import ConvertVideo, EnqueuedVideo
 from pytz import timezone
 
 logger = logging.getLogger(__name__)

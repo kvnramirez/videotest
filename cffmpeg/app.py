@@ -5,5 +5,8 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class DjangoFfmpegConfig(AppConfig):
-    name = 'django_ffmpeg'
+    name = 'cffmpeg'
     verbose_name = _('Videos')
+
+    def ready(self):
+        import signals

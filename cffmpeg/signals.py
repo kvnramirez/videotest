@@ -6,11 +6,11 @@ import time
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from django_ffmpeg.converter import Converter
-from django_ffmpeg.task import convert_video
-# from django_ffmpeg.utils import Converter
+from cffmpeg.converter import Converter
+from cffmpeg.task import convert_video
+# from cffmpeg.utils import Converter
 
-from django_ffmpeg.models import ConvertVideo, EnqueuedVideo
+from cffmpeg.models import ConvertVideo, EnqueuedVideo
 from media_library.models import Video_revision
 import logging
 from django_rq import enqueue

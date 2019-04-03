@@ -8,9 +8,9 @@ from django.views.generic import CreateView
 from django_rq import enqueue
 # from video_encoding import tasks
 # from video_encoding.models import Format
-from django_ffmpeg.models import ConvertVideo
-from media_library.forms import ReviewForm
-from .models import Video, Video_revision
+# from cffmpeg.models import ConvertVideo
+# from media_library.forms import ReviewForm
+# from .models import Video, Video_revision
 
 
 # class VideoFormView(CreateView):
@@ -26,44 +26,44 @@ from .models import Video, Video_revision
 #         return context
 
 
-def pending_review_list(request):
-    """ Pending videos review list """
-    paginate_by = 20
-    denuncias = ConvertVideo.objects.all().order_by(
-        '-created_at')  # videos convertidos/erroneos pendientes de revision
-
-    paginator = Paginator(denuncias, paginate_by)
-
-    page = request.GET.get('page')
-
-    try:
-        file = paginator.page(page)
-    except PageNotAnInteger:
-        file = paginator.page(1)
-    except EmptyPage:
-        file = paginator.page(paginator.num_pages)
-
-    return render(request, 'pending_reviews.html', {'reviews': file})
-
-
-def view_review_details(request, pk):
-    """ Review details """
-    try:
-        review = ConvertVideo.objects.get(id=pk)
-    except:
-        re_url = reverse('pending_review_list')
-        return redirect('%s?status=4' % re_url)
-
-    if request.method == "POST":
-        form = ReviewForm(request.POST, instance=review)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.save()
-            return redirect('view_review_details', pk=review.pk)
-    else:
-        form = ReviewForm(instance=review)
-
-    return render(request, 'view_review_details.html', {'form': form})
+# def pending_review_list(request):
+#     """ Pending videos review list """
+#     paginate_by = 20
+#     denuncias = ConvertVideo.objects.all().order_by(
+#         '-created_at')  # videos convertidos/erroneos pendientes de revision
+#
+#     paginator = Paginator(denuncias, paginate_by)
+#
+#     page = request.GET.get('page')
+#
+#     try:
+#         file = paginator.page(page)
+#     except PageNotAnInteger:
+#         file = paginator.page(1)
+#     except EmptyPage:
+#         file = paginator.page(paginator.num_pages)
+#
+#     return render(request, 'pending_reviews.html', {'reviews': file})
+#
+#
+# def view_review_details(request, pk):
+#     """ Review details """
+#     try:
+#         review = ConvertVideo.objects.get(id=pk)
+#     except:
+#         re_url = reverse('pending_review_list')
+#         return redirect('%s?status=4' % re_url)
+#
+#     if request.method == "POST":
+#         form = ReviewForm(request.POST, instance=review)
+#         if form.is_valid():
+#             post = form.save(commit=False)
+#             post.save()
+#             return redirect('view_review_details', pk=review.pk)
+#     else:
+#         form = ReviewForm(instance=review)
+#
+#     return render(request, 'view_review_details.html', {'form': form})
 
 #
 # @receiver(post_save, sender=Video)

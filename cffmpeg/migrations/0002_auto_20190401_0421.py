@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('django_ffmpeg', '0001_initial'),
+        ('cffmpeg', '0001_initial'),
     ]
 
     operations = [
