@@ -11,121 +11,120 @@ from pytz import timezone
 logger = logging.getLogger(__name__)
 
 
-def convert_instance(format, video):
-    vid_ext = format['extension']
-    vid_command = format['command']
-    vid_thumb_command = format['thumb_command']
-    if not video:
-        logger.info('No video found. Bypassing call...')
-        return
-
-    # # Choosing one unconverted video
-    # try:
-    #     video = ConvertVideo.objects.filter(convert_status='pending')[0]
-    # except IndexError:
-    #     logger.info('No video found. Bypassing call...')
-    #     return
-
-    if vid_ext == "mov":
-        video.convert_status_mov = 'started'
-    else:
-        video.convert_status = 'started'
-    # video.convert_status = 'started'
-    video.save()
-
-    # Choosing converting command
-    filepath = video.video.path
-    full_name = filepath.split('/')[-1]
-
-    video_info = {
-        'name': full_name,
-        'extension': full_name.split('.')[-1],
-    }
-
-    # cmds = ConvertingCommand.objects.filter(is_enabled=True)
-    # cmd = None
-    # for c in cmds:
-    #     data = video_info.get(c.match_by)
-    #     if not data:
-    #         continue
-    #     if re.match(c.match_regex, data):
-    #         cmd = c
-    #         break
-
-    if not vid_command:
-        logger.error('Conversion command not found...')
-        # video.convert_status = 'error'
-        if vid_ext == "mov":
-            video.convert_status_mov = 'error'
-            video.last_convert_msg_mov = 'Conversion command not found'
-        else:
-            video.convert_status = 'error'
-            video.last_convert_msg = 'Conversion command not found'
-        # video.last_convert_msg = 'Conversion command not found'
-        video.save()
-        return
-
-    # Convert video
-    if vid_ext == "mov":
-        video.convert_extension_2 = vid_ext
-    else:
-        video.convert_extension = vid_ext
-    try:
-        c = vid_command % {
-            'input_file': filepath,
-            'output_file': video.converted_path,
-        }
-        logger.info('Converting video command: %s' % c)
-        output = _cli(c)
-        logger.info('Converting video result: %s' % output)
-    except Exception as e:
-        logger.error('Converting video error', exc_info=True)
-        if vid_ext == "mov":
-            video.convert_status_mov = 'error'
-            video.last_convert_msg_mov = u'Exception while converting'
-        else:
-            video.convert_status = 'error'
-            video.last_convert_msg = u'Exception while converting'
-        # video.convert_status = 'error'
-        # video.last_convert_msg = u'Exception while converting'
-        video.save()
-        raise
-
-    # Convert thumb
-    try:
-        if not video.thumb:
-            cmd = vid_thumb_command % {
-                'in_file': filepath,
-                'out_file': video.thumb_video_path,
-                'thumb_frame': video.thumb_frame,
-            }
-            _cli(cmd, True)
-            logger.info('Creating thumbnail command: %s' % cmd)
-    except:
-        logger.error('Converting thumb error', exc_info=True)
-
-    if vid_ext == "mov":
-        video.convert_status_mov = 'converted'
-        video.last_convert_msg_mov = repr(output).replace('\\n', '\n').strip('\'')
-        video.converted_mov_at = datetime.datetime.now(tz=timezone('UTC'))
-        video.output_video_mov.name = video.converted_path_mov
-    else:
-        video.convert_status = 'converted'
-        video.last_convert_msg = repr(output).replace('\\n', '\n').strip('\'')
-        video.converted_at = datetime.datetime.now(tz=timezone('UTC'))
-        video.output_video_mp4.name = video.converted_path_mp4
-    # video.convert_status = 'converted'
-    # video.last_convert_msg = repr(output).replace('\\n', '\n').strip('\'')
-    # if vid_ext == "mov":
-    #     video.converted_mov_at = datetime.datetime.now(tz=timezone('UTC'))
-    # else:
-    #     video.converted_at = datetime.datetime.now(tz=timezone('UTC'))
-    # video.converted_at = datetime.datetime.now(tz=timezone('UTC'))
-    video.save()
+# def convert_instance(format, video):
+#     vid_ext = format['extension']
+#     vid_command = format['command']
+#     vid_thumb_command = format['thumb_command']
+#     if not video:
+#         logger.info('No video found. Bypassing call...')
+#         return
+#
+#     # # Choosing one unconverted video
+#     # try:
+#     #     video = ConvertVideo.objects.filter(convert_status='pending')[0]
+#     # except IndexError:
+#     #     logger.info('No video found. Bypassing call...')
+#     #     return
+#
+#     if vid_ext == "mov":
+#         video.convert_status_mov = 'started'
+#     else:
+#         video.convert_status = 'started'
+#     # video.convert_status = 'started'
+#     video.save()
+#
+#     # Choosing converting command
+#     filepath = video.video.path
+#     full_name = filepath.split('/')[-1]
+#
+#     video_info = {
+#         'name': full_name,
+#         'extension': full_name.split('.')[-1],
+#     }
+#
+#     # cmds = ConvertingCommand.objects.filter(is_enabled=True)
+#     # cmd = None
+#     # for c in cmds:
+#     #     data = video_info.get(c.match_by)
+#     #     if not data:
+#     #         continue
+#     #     if re.match(c.match_regex, data):
+#     #         cmd = c
+#     #         break
+#
+#     if not vid_command:
+#         logger.error('Conversion command not found...')
+#         # video.convert_status = 'error'
+#         if vid_ext == "mov":
+#             video.convert_status_mov = 'error'
+#             video.last_convert_msg_mov = 'Conversion command not found'
+#         else:
+#             video.convert_status = 'error'
+#             video.last_convert_msg = 'Conversion command not found'
+#         # video.last_convert_msg = 'Conversion command not found'
+#         video.save()
+#         return
+#
+#     # Convert video
+#     if vid_ext == "mov":
+#         video.convert_extension_2 = vid_ext
+#     else:
+#         video.convert_extension = vid_ext
+#     try:
+#         c = vid_command % {
+#             'input_file': filepath,
+#             'output_file': video.converted_path,
+#         }
+#         logger.info('Converting video command: %s' % c)
+#         output = _cli(c)
+#         logger.info('Converting video result: %s' % output)
+#     except Exception as e:
+#         logger.error('Converting video error', exc_info=True)
+#         if vid_ext == "mov":
+#             video.convert_status_mov = 'error'
+#             video.last_convert_msg_mov = u'Exception while converting'
+#         else:
+#             video.convert_status = 'error'
+#             video.last_convert_msg = u'Exception while converting'
+#         # video.convert_status = 'error'
+#         # video.last_convert_msg = u'Exception while converting'
+#         video.save()
+#         raise
+#
+#     # Convert thumb
+#     try:
+#         if not video.thumb:
+#             cmd = vid_thumb_command % {
+#                 'in_file': filepath,
+#                 'out_file': video.thumb_video_path,
+#                 'thumb_frame': video.thumb_frame,
+#             }
+#             _cli(cmd, True)
+#             logger.info('Creating thumbnail command: %s' % cmd)
+#     except:
+#         logger.error('Converting thumb error', exc_info=True)
+#
+#     if vid_ext == "mov":
+#         video.convert_status_mov = 'converted'
+#         video.last_convert_msg_mov = repr(output).replace('\\n', '\n').strip('\'')
+#         video.converted_mov_at = datetime.datetime.now(tz=timezone('UTC'))
+#         video.output_video_mov.name = video.converted_path_mov
+#     else:
+#         video.convert_status = 'converted'
+#         video.last_convert_msg = repr(output).replace('\\n', '\n').strip('\'')
+#         video.converted_at = datetime.datetime.now(tz=timezone('UTC'))
+#         video.output_video_mp4.name = video.converted_path_mp4
+#     # video.convert_status = 'converted'
+#     # video.last_convert_msg = repr(output).replace('\\n', '\n').strip('\'')
+#     # if vid_ext == "mov":
+#     #     video.converted_mov_at = datetime.datetime.now(tz=timezone('UTC'))
+#     # else:
+#     #     video.converted_at = datetime.datetime.now(tz=timezone('UTC'))
+#     # video.converted_at = datetime.datetime.now(tz=timezone('UTC'))
+#     video.save()
 
 
 def convert_video(convert_video_id, enqueue_video_id):
-
     print "ConvertVideo pk: %s" % convert_video_id
     print "EnqueuedVideo pk: %s" % enqueue_video_id
 
@@ -144,6 +143,9 @@ def convert_video(convert_video_id, enqueue_video_id):
         logger.info('No enqueue video found. Bypassing call...')
         return
 
+    convert_video_object.enqueue.add(enqueue_video)
+    convert_video_object.save()
+
     video_extension = enqueue_video.convert_extension
     video_command = enqueue_video.command
     video_thumb_command = enqueue_video.thumb_command
@@ -158,10 +160,10 @@ def convert_video(convert_video_id, enqueue_video_id):
     filepath = video.path
     full_name = filepath.split('/')[-1]
 
-    video_info = {
-        'name': full_name,
-        'extension': full_name.split('.')[-1],
-    }
+    # video_info = {
+    #     'name': full_name,
+    #     'extension': full_name.split('.')[-1],
+    # }
 
     if not video_command:
         logger.error('Conversion command not found...')
@@ -170,7 +172,8 @@ def convert_video(convert_video_id, enqueue_video_id):
         enqueue_video.save()
         return
 
-    logger.info('output video filepath: %s' % converted_path(video_extension, convert_video_object))
+    # logger.info('output video filepath: %s' % converted_path(video_extension, convert_video_object))
+    print 'output video filepath: %s' % converted_path(video_extension, convert_video_object)
 
     try:
         c = video_command % {
@@ -187,7 +190,8 @@ def convert_video(convert_video_id, enqueue_video_id):
         enqueue_video.save()
         raise
 
-    logger.info('output thumb filepath: %s' % thumb_video_path(convert_video_object))
+    # logger.info('output thumb filepath: %s' % thumb_video_path(convert_video_object))
+    print 'output thumb filepath: %s' % thumb_video_path(convert_video_object)
 
     # Convert thumb
     try:
@@ -202,7 +206,8 @@ def convert_video(convert_video_id, enqueue_video_id):
     except:
         logger.error('Converting thumb error', exc_info=True)
 
-    logger.info('Success, video converted with extension: %s' % video_extension)
+    # logger.info('Success, video converted with extension: %s' % video_extension)
+    print 'Success, video converted with extension: %s' % video_extension
 
     enqueue_video.convert_status = 'converted'
     enqueue_video.last_convert_msg = repr(output).replace('\\n', '\n').strip('\'')
@@ -221,20 +226,23 @@ def converted_path(convert_extension, original_video):
     if not convert_extension:
         return None
     filepath = original_video.video.path
-    filepath.replace('_original', '_x264')
-    print re.sub(r'[^\.]{1,10}$', convert_extension, filepath)
-    return re.sub(r'[^\.]{1,10}$', convert_extension, filepath)
+    # print "original converted filepath: %s" % filepath
+    # print "replaced converted filepath: %s" % filepath.replace('_original', '_x264')
+    replaced_filepath = filepath.replace('_original', '_x264')
+    return re.sub(r'[^\.]{1,10}$', convert_extension, replaced_filepath)
 
 
 def thumb_video_path(original_video):
-        """
-        Generate new path for video thumbnail
-        :param original_video: original video object to extract filepath
-        :return: new path to use
-        """
-        filepath = original_video.video.path
-        filepath.replace('_original', '_thumb')
-        return re.sub(r'[^\.]{1,10}$', 'jpg', filepath)
+    """
+    Generate new path for video thumbnail
+    :param original_video: original video object to extract filepath
+    :return: new path to use
+    """
+    filepath = original_video.video.path
+    # print "original thumb filepath: %s" % filepath
+    # print "replaced thumb filepath: %s" % filepath.replace('_original', '_thumb')
+    replaced_filepath = filepath.replace('_original', '_thumb')
+    return re.sub(r'[^\.]{1,10}$', 'jpg', replaced_filepath)
 
 
 def _cli(cmd, without_output=False):

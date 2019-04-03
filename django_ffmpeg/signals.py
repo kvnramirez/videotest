@@ -12,7 +12,7 @@ import time
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from django_ffmpeg.task import convert_instance, convert_video
+from django_ffmpeg.task import convert_video
 # from django_ffmpeg.utils import Converter
 
 from django_ffmpeg.models import ConvertVideo, EnqueuedVideo
@@ -41,9 +41,9 @@ def format_post_save(sender, instance, created, **kwargs):
                                                          command=format['command'],
                                                          thumb_command=format['thumb_command'])
             print "instance pk: %s" % instance.pk
-            instance.enqueue.add(video_enqueue)
-            instance.save()
-            print instance.enqueue.all()
+            # instance.enqueue.add(video_enqueue)
+            # instance.save()
+            # print instance.enqueue.all()
             print "Enqueing: %s" % format['extension']
             start = time.time()
             enqueue(convert_video, instance.pk, video_enqueue.pk)
