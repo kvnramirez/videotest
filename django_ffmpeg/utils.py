@@ -110,23 +110,39 @@ class Converter(object):
     #             return p.stdout.read()
 
     def _cli(self, cmd, without_output=False):
+        # /usr/bin/ffmpeg  -hide_banner -nostats -i %(input_file)s -target film-dvd %(output_file)s
         errors = False
         print cmd
         print 'subprocess'
         import subprocess
         try:
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-            out, err = p.communicate()
+            stdoutdata, stderrdata = p.communicate()
             if p.wait() != 0:
+                # Handle error / raise exception
                 errors = True
                 print "There were some errors"
-                print '--- ERR ----'
-                print err
-                print '--- OUT ----'
-                print out
+                print '--- ERR to store----'
+                print stderrdata
+                print '--- OUT----'
+                print stdoutdata
+                print '--- STDOUT ERR----'
+                print p.stdout.read()
                 print '-----'
-            print out
-            return out
+            if not errors:
+                print "no errors"
+            else:
+                print "errors found"
+            print '--- STDOUT ERR2----'
+            # print p.stdout.read()
+            print "holi"
+            print '--- OUT2 ----'
+            print stdoutdata
+            print '>> stderrdata: '
+            print stderrdata # este se almacena en el ultimo mensaje, sea exito o error
+            # todo regresar campo errors para saber que estado poner en el video
+            # todo regresar stderrdata, errors
+            return stdoutdata
         except OSError as e:
             print 'error'
             traceback.print_exc()
