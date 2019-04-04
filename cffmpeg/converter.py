@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+import errno
 import logging
 import os
 import re
 import traceback
 
+from cffmpeg.defaults import CONVERTER_ORIGINAL_FOLDER, CONVERTER_COVERTED_FOLDER, CONVERTER_THUMB_FOLDER
 from cffmpeg.models import ConvertVideo, EnqueuedVideo
 from pytz import timezone
 
@@ -58,13 +60,15 @@ class Converter(object):
         if not video_command:
             logger.error('Conversion command not found...')
             enqueue_video.convert_status = 'error'
-            enqueue_video.last_convert_msg = 'Conversion command not found'
+            enqueue_video.last_convert_msg = u'Conversion command not found'
+            enqueue_video.full_convert_msg = u'No input command to pass to ffmpeg'
             enqueue_video.save()
             return
 
         # logger.info('output video filepath: %s' % converted_path(video_extension, convert_video_object))
         print 'output video filepath: %s' % self.converted_path(video_extension, convert_video_object)
 
+        stderrdata = None
         try:
             c = video_command % {
                 'input_file': filepath,
@@ -72,20 +76,23 @@ class Converter(object):
             }
             logger.info('Converting video command: %s' % c)
             print 'Converting video command: %s' % c
-            output = self._cli(c)
-            logger.info('Converting video result: %s' % output)
+            stdoutdata, stderrdata, errors = self._cli(c)
+            logger.info('Converting video result: %s' % stderrdata)
         except Exception as e:
             logger.error('Converting video error', exc_info=True)
             print 'Converting video error'
             print(e)
             enqueue_video.convert_status = 'error'
-            enqueue_video.last_convert_msg = u'Exception while converting'
+            enqueue_video.last_convert_msg = u'Error while converting'
+            enqueue_video.full_convert_msg = stderrdata
             enqueue_video.save()
             raise
 
         # logger.info('output thumb filepath: %s' % thumb_video_path(convert_video_object))
         print 'output thumb filepath: %s' % self.thumb_video_path(convert_video_object)
 
+        thumb_errors = False
+        thumb_stderrdata = None
         # Convert thumb
         try:
             if not enqueue_video.thumb:
@@ -94,7 +101,7 @@ class Converter(object):
                     'out_file': self.thumb_video_path(convert_video_object),
                     'thumb_frame': enqueue_video.thumb_frame,
                 }
-                self._cli(cmd, True)
+                thumb_stdoutdata, thumb_stderrdata, thumb_errors = self._cli(cmd, True)
                 logger.info('Creating thumbnail command: %s' % cmd)
                 print 'Creating thumbnail command: %s' % cmd
         except:
@@ -104,8 +111,21 @@ class Converter(object):
         # logger.info('Success, video converted with extension: %s' % video_extension)
         print 'Success, video converted with extension: %s' % video_extension
 
+        print 'thumb_stderrdata: '
+        print thumb_stderrdata
+        print 'thumb_errors: '
+        print thumb_errors
+
+        if not thumb_errors:
+            enqueue_video.thumb.name = self.thumb_video_path(convert_video_object)
+
+        print 'stderrdata: '
+        print stderrdata
+
         enqueue_video.convert_status = 'converted'
-        enqueue_video.last_convert_msg = repr(output).replace('\\n', '\n').strip('\'')
+        # enqueue_video.last_convert_msg = repr(stderrdata).replace('\\n', '\n').strip('\'')
+        enqueue_video.last_convert_msg = u'Video convert successfully'
+        enqueue_video.full_convert_msg = stderrdata
         enqueue_video.converted_at = datetime.datetime.now(tz=timezone('UTC'))
         enqueue_video.converted_video.name = self.converted_path(video_extension, convert_video_object)
         enqueue_video.save()
@@ -122,7 +142,14 @@ class Converter(object):
         filepath = original_video.video.path
         # print "original converted filepath: %s" % filepath
         # print "replaced converted filepath: %s" % filepath.replace('_original', '_x264')
-        replaced_filepath = filepath.replace('_original', '_x264')
+        replaced_filepath = filepath.replace(CONVERTER_ORIGINAL_FOLDER, CONVERTER_COVERTED_FOLDER)
+        directory = os.path.dirname(replaced_filepath)
+        if not os.path.exists(directory):
+            try:
+                os.makedirs(directory)
+            except OSError as exc:  # Guard against race condition
+                if exc.errno != errno.EEXIST:
+                    raise
         return re.sub(r'[^\.]{1,10}$', convert_extension, replaced_filepath)
 
     def thumb_video_path(self, original_video):
@@ -134,7 +161,14 @@ class Converter(object):
         filepath = original_video.video.path
         # print "original thumb filepath: %s" % filepath
         # print "replaced thumb filepath: %s" % filepath.replace('_original', '_thumb')
-        replaced_filepath = filepath.replace('_original', '_thumb')
+        replaced_filepath = filepath.replace(CONVERTER_ORIGINAL_FOLDER, CONVERTER_THUMB_FOLDER)
+        directory = os.path.dirname(replaced_filepath)
+        if not os.path.exists(directory):
+            try:
+                os.makedirs(directory)
+            except OSError as exc:  # Guard against race condition
+                if exc.errno != errno.EEXIST:
+                    raise
         return re.sub(r'[^\.]{1,10}$', 'jpg', replaced_filepath)
 
     # https://stackoverflow.com/questions/2502833/store-output-of-subprocess-popen-call-in-a-string
@@ -169,19 +203,19 @@ class Converter(object):
                 print "errors found"
             print '--- STDOUT ERR2----'
             # print p.stdout.read()
-            print "holi"
             print '--- OUT2 ----'
             print stdoutdata
             print '>> stderrdata: '
             print stderrdata  # este se almacena en el ultimo mensaje, sea exito o error
             # todo regresar campo errors para saber que estado poner en el video
             # todo regresar stderrdata, errors
-            return stdoutdata
+            return stdoutdata, stderrdata, errors
         except OSError as e:
             print 'error'
             traceback.print_exc()
             print e
             print e.strerror
+            return e.strerror, e.strerror, errors
 
     # def _cli(self, cmd, without_output=False):
     #     """

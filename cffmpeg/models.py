@@ -90,6 +90,11 @@ class EnqueuedVideo(models.Model):
         null=True,
         blank=True,
     )
+    full_convert_msg = models.TextField(
+        verbose_name=_('Full Message from last converting command'),
+        null=True,
+        blank=True,
+    )
     meta_info = models.TextField(
         verbose_name=_('Meta info about video'),
         null=True,
