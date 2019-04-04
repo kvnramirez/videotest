@@ -4,6 +4,7 @@ import datetime
 import logging
 import os
 import re
+import traceback
 
 from cffmpeg.models import ConvertVideo, EnqueuedVideo
 from pytz import timezone
@@ -136,21 +137,67 @@ class Converter(object):
         replaced_filepath = filepath.replace('_original', '_thumb')
         return re.sub(r'[^\.]{1,10}$', 'jpg', replaced_filepath)
 
+    # https://stackoverflow.com/questions/2502833/store-output-of-subprocess-popen-call-in-a-string
+    # https://stackoverflow.com/questions/40625862/python-subprocess-popen-no-such-file-or-directory/40626107
+    # https://stackoverflow.com/questions/47414122/ffmpeg-not-working-from-python-subprocess-popen-but-works-from-command-line
+    # https://stackoverflow.com/questions/55507497/its-possible-to-catch-ffmpeg-errors-with-python/55508096#55508096
+
     def _cli(self, cmd, without_output=False):
-        """
-        Pass command to command line interface
-        :param cmd: command to execute in command line interface
-        :param without_output:
-        :return: cli message output
-        """
-        if os.name == 'posix':
-            import commands
-            return commands.getoutput(cmd)
-        else:
-            import subprocess
-            if without_output:
-                DEVNULL = open(os.devnull, 'wb')
-                subprocess.Popen(cmd, stdout=DEVNULL, stderr=DEVNULL)
+        # /usr/bin/ffmpeg  -hide_banner -nostats -i %(input_file)s -target film-dvd %(output_file)s
+        # TODO probar
+        errors = False
+        print cmd
+        print 'subprocess'
+        import subprocess
+        try:
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            stdoutdata, stderrdata = p.communicate()
+            if p.wait() != 0:
+                # Handle error / raise exception
+                errors = True
+                print "There were some errors"
+                print '--- ERR to store----'
+                print stderrdata
+                print '--- OUT----'
+                print stdoutdata
+                print '--- STDOUT ERR----'
+                print p.stdout.read()
+                print '-----'
+            if not errors:
+                print "no errors"
             else:
-                p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-                return p.stdout.read()
+                print "errors found"
+            print '--- STDOUT ERR2----'
+            # print p.stdout.read()
+            print "holi"
+            print '--- OUT2 ----'
+            print stdoutdata
+            print '>> stderrdata: '
+            print stderrdata  # este se almacena en el ultimo mensaje, sea exito o error
+            # todo regresar campo errors para saber que estado poner en el video
+            # todo regresar stderrdata, errors
+            return stdoutdata
+        except OSError as e:
+            print 'error'
+            traceback.print_exc()
+            print e
+            print e.strerror
+
+    # def _cli(self, cmd, without_output=False):
+    #     """
+    #     Pass command to command line interface
+    #     :param cmd: command to execute in command line interface
+    #     :param without_output:
+    #     :return: cli message output
+    #     """
+    #     if os.name == 'posix':
+    #         import commands
+    #         return commands.getoutput(cmd)
+    #     else:
+    #         import subprocess
+    #         if without_output:
+    #             DEVNULL = open(os.devnull, 'wb')
+    #             subprocess.Popen(cmd, stdout=DEVNULL, stderr=DEVNULL)
+    #         else:
+    #             p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    #             return p.stdout.read()

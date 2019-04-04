@@ -1,17 +1,10 @@
 # -*- coding: utf-8 -*-
-
-# https://github.com/PixxxeL/django-ffmpeg/tree/master/django_ffmpeg
-import time
-
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from cffmpeg.converter import Converter
-from cffmpeg.task import convert_video
-# from cffmpeg.utils import Converter
 
 from cffmpeg.models import ConvertVideo, EnqueuedVideo
-from media_library.models import Video_revision
 import logging
 from django_rq import enqueue
 
@@ -33,27 +26,10 @@ def format_post_save(sender, instance, created, **kwargs):
             video_enqueue = EnqueuedVideo.objects.create(convert_extension=format['extension'],
                                                          command=format['command'],
                                                          thumb_command=format['thumb_command'])
-            # print "instance pk: %s" % instance.pk
-            # instance.enqueue.add(video_enqueue)
-            # instance.save()
-            # print instance.enqueue.all()
             print "Iinstance pk: %s, Enqueing: %s" % (instance.pk, format['extension'])
-            # start = time.time()
-            # TODO this partially works:
-            # enqueue(convert_video, instance.pk, video_enqueue.pk)
-            # TODO testing with class
             n_instance = Converter()
             enqueue(n_instance.convert_video, instance.pk, video_enqueue.pk)
 
-            # TODO not catching exceptions when bad video, check that
-
-            # Converter().convert_instance(format, instance)
-            # logger.info('Job finished at: %s s' % (time.time() - start))
-            # print 'Job finished at: %s s' % (time.time() - start)
-
-        pass  # write your code hier
+        pass
     else:
-        # print 'Progress:'
-        # print instance.progress
-        # print '----'
         pass

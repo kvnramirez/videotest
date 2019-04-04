@@ -29,13 +29,11 @@ def thumb_file_path(instance, filename):
 def upload_reformat_name(instance, filename):
     """
     Format the name of the file consisting of the date, random number and extension
-    The directory name: 20190401/b9260873-b7dd-4995-a342-155b4abfafc8.mp4
+    The directory name: 20190401/o/b9260873-b7dd-4995-a342-155b4abfafc8.mp4
     """
     name, ext = os.path.splitext(filename)
-    # name = '%s_%s' % (datetime.datetime.now().strftime("%Y%m%d%H%M%S"), '{:05d}'.format(random.randint(0, 99999)))
-    name = '%s_original' % str(uuid.uuid4())
-    # directory = '%s/' % str(uuid.uuid4())
-    directory = '%s/' % str(datetime.datetime.now().strftime("%Y%m%d"))
+    name = '%s' % str(uuid.uuid4())
+    directory = '%s/o/' % str(datetime.datetime.now().strftime("%Y%m%d"))
 
     return '%s%s%s' % (directory, name, ext.lower())
 
@@ -44,47 +42,6 @@ CONVERTING_COMMAND_MATCH_CHOICES = (
     ('extension', _('Extension')),
     ('name', _('File name')),
 )
-
-# class ConvertingCommand(models.Model):
-#     '''
-#     System commands for convertion videos to desired format
-#     '''
-#     match_by = models.CharField(
-#         max_length=50,
-#         verbose_name=_('Match by'),
-#         choices=CONVERTING_COMMAND_MATCH_CHOICES,
-#         default='extension',
-#         help_text=_('Video param to detected from if this command should be used to convert given video'),
-#     )
-#     match_regex = models.CharField(
-#         max_length=200,
-#         verbose_name=_('RegExp to match video file'),
-#     )
-#     is_enabled = models.BooleanField(
-#         verbose_name=_('Enabled?'),
-#         default=True,
-#     )
-#     command = models.TextField(
-#         verbose_name=_('System command to convert video'),
-#         help_text='Example: /usr/bin/ffmpeg -nostats -y -i %(input_file)s -acodec libmp3lame -ar 44100 -f flv %(output_file)s',
-#     )
-#     convert_extension = models.CharField(
-#         max_length=5,
-#         verbose_name=_('Extension'),
-#         help_text=_('Without dot: `.`'),
-#     )
-#     thumb_command = models.TextField(
-#         verbose_name=_('System command to convert thumb'),
-#         help_text='Example: /usr/bin/ffmpeg -hide_banner -nostats -i %(in_file)s -y -frames:v 1 -ss %(thumb_frame)s %(out_file)s',
-#     )
-#
-#     def __unicode__(self):
-#         return self.command[0:50]
-#
-#     class Meta:
-#         verbose_name = _(u'Video convert command')
-#         verbose_name_plural = _(u'Video convert commands')
-
 
 VIDEO_CONVERSION_STATUS_CHOICES = (
     ('pending', _('Pending convert')),
@@ -169,9 +126,9 @@ class EnqueuedVideo(models.Model):
 
 
 class ConvertVideo(models.Model):
-    '''
+    """
     Uploaded video
-    '''
+    """
     title = models.CharField(
         max_length=500,
         verbose_name=_('Title'),
