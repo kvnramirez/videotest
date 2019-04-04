@@ -26,3 +26,6 @@ redis-server
 
 -- Correr worker
 manage.py rqworker high default low
+
+
+python manage.py convert_videos

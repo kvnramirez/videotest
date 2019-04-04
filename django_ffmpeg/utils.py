@@ -4,10 +4,10 @@ import datetime
 import logging
 import os
 import re
+import traceback
 
 from django_ffmpeg.models import Video, ConvertingCommand
 from pytz import timezone
-
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 class Converter(object):
 
     def convert(self):
+        print 'convert'
         # Choosing one unconverted video
         try:
             video = Video.objects.filter(convert_status='pending')[0]
@@ -58,6 +59,8 @@ class Converter(object):
             }
             logger.info('Converting video command: %s' % c)
             output = self._cli(c)
+            print 'output: '
+            print output
             logger.info('Converting video result: %s' % output)
         except Exception as e:
             logger.error('Converting video error', exc_info=True)
@@ -70,30 +73,62 @@ class Converter(object):
         try:
             if not video.thumb:
                 cmd = cmd.thumb_command % {
-                    'in_file'     : filepath,
-                    'out_file'    : video.thumb_video_path,
-                    'thumb_frame' : video.thumb_frame,
+                    'in_file': filepath,
+                    'out_file': video.thumb_video_path,
+                    'thumb_frame': video.thumb_frame,
                 }
                 self._cli(cmd, True)
                 logger.info('Creating thumbnail command: %s' % cmd)
         except:
             logger.error('Converting thumb error', exc_info=True)
 
+        print 'holi'
+
         video.convert_status = 'converted'
         video.last_convert_msg = repr(output).replace('\\n', '\n').strip('\'')
         video.converted_at = datetime.datetime.now(tz=timezone('UTC'))
         video.save()
 
+    # def _cli(self, cmd, without_output=False):
+    #     print 'cli'
+    #     if os.name == 'posix':
+    #         print 'posix'
+    #         import commands
+    #         return commands.getoutput(cmd)
+    #     else:
+    #         print 'subprocess'
+    #         import subprocess
+    #         if without_output:
+    #             print 'without_output'
+    #             DEVNULL = open(os.devnull, 'wb')
+    #             subprocess.Popen(cmd, stdout=DEVNULL, stderr=DEVNULL)
+    #         else:
+    #             print 'else'
+    #             p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    #             print 'stderr'
+    #             print p.stderr
+    #             return p.stdout.read()
 
     def _cli(self, cmd, without_output=False):
-        if os.name == 'posix':
-            import commands
-            return commands.getoutput(cmd)
-        else:
-            import subprocess
-            if without_output:
-                DEVNULL = open(os.devnull, 'wb')
-                subprocess.Popen(cmd, stdout=DEVNULL, stderr=DEVNULL)
-            else:
-                p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-                return p.stdout.read()
+        errors = False
+        print cmd
+        print 'subprocess'
+        import subprocess
+        try:
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            out, err = p.communicate()
+            if p.wait() != 0:
+                errors = True
+                print "There were some errors"
+                print '--- ERR ----'
+                print err
+                print '--- OUT ----'
+                print out
+                print '-----'
+            print out
+            return out
+        except OSError as e:
+            print 'error'
+            traceback.print_exc()
+            print e
+            print e.strerror
