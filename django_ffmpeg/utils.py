@@ -109,8 +109,15 @@ class Converter(object):
     #             print p.stderr
     #             return p.stdout.read()
 
+
+    # https://stackoverflow.com/questions/2502833/store-output-of-subprocess-popen-call-in-a-string
+    # https://stackoverflow.com/questions/40625862/python-subprocess-popen-no-such-file-or-directory/40626107
+    # https://stackoverflow.com/questions/47414122/ffmpeg-not-working-from-python-subprocess-popen-but-works-from-command-line
+    # https://stackoverflow.com/questions/55507497/its-possible-to-catch-ffmpeg-errors-with-python/55508096#55508096
+
     def _cli(self, cmd, without_output=False):
         # /usr/bin/ffmpeg  -hide_banner -nostats -i %(input_file)s -target film-dvd %(output_file)s
+        # TODO probar
         errors = False
         print cmd
         print 'subprocess'
