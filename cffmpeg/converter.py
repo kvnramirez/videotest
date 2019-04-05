@@ -200,23 +200,13 @@ class Converter(object):
                 print "There were some errors"
                 print '--- ERR to store----'
                 print stderrdata
-                # print '--- OUT----'
-                # print stdoutdata
-                # print '--- STDOUT ERR----'
-                # print p.stdout.read()
                 print '-----'
             if not errors:
                 print "no errors"
             else:
                 print "errors found"
-            # print '--- STDOUT ERR2----'
-            # print p.stdout.read()
-            # print '--- OUT2 ----'
-            # print stdoutdata
             print '>> stderrdata: '
             print stderrdata  # este se almacena en el ultimo mensaje, sea exito o error
-            # todo regresar campo errors para saber que estado poner en el video
-            # todo regresar stderrdata, errors
             return stdoutdata, stderrdata, errors
         except OSError as e:
             print 'error'
