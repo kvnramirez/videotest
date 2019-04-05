@@ -9,7 +9,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 # from .models import ConvertingCommand, ConvertVideo
-from .models import ConvertVideo
+from .models import ConvertVideo, EnqueuedVideo
 
 
 class AdminVideoWidget(AdminFileWidget):
@@ -50,15 +50,67 @@ def reconvert_video(modeladmin, request, queryset):
 reconvert_video.short_description = _('Convert again')
 
 
+class EnqueueVideoInline(admin.TabularInline):
+    # can_delete = False
+    extra = 0
+    model = ConvertVideo.enqueue.through
+    verbose_name = 'Enqueued video'
+    verbose_name_plural = 'Enqueued videos'
+
+    def has_add_permission(self, request):
+        return False
+
+    # def has_change_permission(self, request, obj=None):
+    #     return False
+
+    # def has_delete_permission(self, request, obj=None):
+    #     return False
+
+    # fields = ['clown_name', 'clown_name2',]
+    # readonly_fields = ['clown_name', 'clown_name2',]
+    #
+    # def clown_name(self, instance):
+    #     print 'x'
+    #     print instance.pk
+    #     return instance.pk
+    #
+    # clown_name.short_description = 'pk'
+    #
+    # def clown_name2(self, instance):
+    #     print 'y: '
+    #     print instance.thumb_frame
+    #     return instance.converted_at
+    #
+    # clown_name2.short_description = 'y'
+    # fields = ['row_name']
+    # readonly_fields = ['row_name']
+    #
+    # def row_name(self, instance):
+    #     print instance.convert_status
+    #     return instance.enqueuevideo.convert_status
+    #
+    # row_name.short_description = 'row name'
+
+
 class VideoAdmin(admin.ModelAdmin):
     # list_display = ('title_repr', 'created_at', 'convert_status', 'converted_at')
-    list_display = ('title_repr', 'created_at')
+    list_display = ('title_repr', 'created_at',)
     list_display_links = ('title_repr',)
     # readonly_fields = (
     #     'convert_extension', 'convert_status', 'last_convert_msg', 'convert_extension_2', 'convert_status_mov',
     #     'last_convert_msg_mov')
     # readonly_fields = ('enqueue',)
     form = VideoAdminForm
+
+    inlines = [
+        EnqueueVideoInline,
+    ]
+    exclude = ('enqueue',)
+
+    def _enqueued(self, obj):
+        return "\n".join([str(a.pk) for a in obj.enqueue.all()])
+
+    _enqueued.short_description = "List of Enqueued"
 
     # actions = [reconvert_video]
 
@@ -74,6 +126,14 @@ class VideoAdmin(admin.ModelAdmin):
             obj.user = request.user
         super(VideoAdmin, self).save_model(request, obj, form, change)
 
+
+class EnqueuedVideoAdmin(admin.ModelAdmin):
+    readonly_fields = (
+        'converted_video', 'thumb', 'thumb_frame', 'convert_status', 'converted_at', 'last_convert_msg',
+        'full_convert_msg', 'meta_info', 'convert_extension', 'command', 'thumb_command')
+
+
+admin.site.register(EnqueuedVideo, EnqueuedVideoAdmin)
 
 admin.site.register(ConvertVideo, VideoAdmin)
 

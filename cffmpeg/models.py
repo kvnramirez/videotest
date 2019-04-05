@@ -196,32 +196,6 @@ class ConvertVideo(models.Model):
 
     other = models.CharField(verbose_name=_('Other reason'), max_length=2000, blank=True, default='')
 
-    # @property
-    # def converted_path(self):
-    #     if not self.convert_extension:
-    #         return None
-    #     filepath = self.video.path
-    #     filepath = filepath.replace(FFMPEG_ORIG_VIDEO, FFMPEG_CONV_VIDEO)
-    #     return re.sub(r'[^\.]{1,10}$', self.convert_extension, filepath)
-    #
-    # @property
-    # def converted_path_mov(self):
-    #     filepath = self.video.path
-    #     filepath = filepath.replace(FFMPEG_ORIG_VIDEO, FFMPEG_CONV_VIDEO)
-    #     return re.sub(r'[^\.]{1,10}$', 'mov', filepath)
-    #
-    # @property
-    # def converted_path_mp4(self):
-    #     filepath = self.video.path
-    #     filepath = filepath.replace(FFMPEG_ORIG_VIDEO, FFMPEG_CONV_VIDEO)
-    #     return re.sub(r'[^\.]{1,10}$', 'mp4', filepath)
-    #
-    # @property
-    # def thumb_video_path(self):
-    #     filepath = self.video.path
-    #     filepath = filepath.replace(FFMPEG_ORIG_VIDEO, FFMPEG_THUMB_VIDEO)
-    #     return re.sub(r'[^\.]{1,10}$', 'jpg', filepath)
-
     def __unicode__(self):
         return self.title or u'Without title #%s' % self.pk
 

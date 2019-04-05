@@ -186,7 +186,7 @@ class Converter(object):
 
     def _cli(self, cmd, without_output=False):
         # /usr/bin/ffmpeg  -hide_banner -nostats -i %(input_file)s -target film-dvd %(output_file)s
-        # TODO probar
+        # TODO validar
         errors = False
         print cmd
         print 'subprocess'
