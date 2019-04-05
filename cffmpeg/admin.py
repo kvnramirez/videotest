@@ -58,6 +58,7 @@ class EnqueueVideoInline(admin.TabularInline):
     model = ConvertVideo.enqueue.through
     verbose_name = 'Enqueued video'
     verbose_name_plural = 'Enqueued videos'
+    template = 'tabular.html'
 
     def has_add_permission(self, request):
         return False
