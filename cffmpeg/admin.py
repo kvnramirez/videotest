@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
-
+from django.contrib.admin.options import FORMFIELD_FOR_DBFIELD_DEFAULTS
 from django.forms import ModelForm
 from django.contrib.admin.widgets import AdminFileWidget
 from django.db import models
 from django.contrib import admin
 from django.forms import CheckboxSelectMultiple
+from django.urls import reverse
 from django.utils.dateformat import DateFormat
 from django.utils.formats import get_format
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
@@ -59,6 +61,20 @@ class EnqueueVideoInline(admin.TabularInline):
     verbose_name = 'Enqueued video'
     verbose_name_plural = 'Enqueued videos'
     template = 'tabular.html'
+    show_change_link = True
+
+    # def __init__(self, parent_model, admin_site):
+    #     self.admin_site = admin_site
+    #     self.parent_model = parent_model
+    #     self.opts = self.model._meta
+    #     self.has_registered_model = True
+    #     overrides = FORMFIELD_FOR_DBFIELD_DEFAULTS.copy()
+    #     overrides.update(self.formfield_overrides)
+    #     self.formfield_overrides = overrides
+    #     if self.verbose_name is None:
+    #         self.verbose_name = self.model._meta.verbose_name
+    #     if self.verbose_name_plural is None:
+    #         self.verbose_name_plural = self.model._meta.verbose_name_plural
 
     def has_add_permission(self, request):
         return False
@@ -69,8 +85,23 @@ class EnqueueVideoInline(admin.TabularInline):
     # def has_delete_permission(self, request, obj=None):
     #     return False
 
-    fields = ['enqueue_pk', 'enqueue_lcm', 'enqueue_status', 'enqueue_ext', 'enqueue_target', 'enqueue_cdate']
-    readonly_fields = ['enqueue_pk', 'enqueue_lcm', 'enqueue_status', 'enqueue_ext', 'enqueue_target', 'enqueue_cdate']
+    fields = ['enqueue_pk', 'enqueue_lcm', 'enqueue_status', 'enqueue_ext', 'enqueue_target', 'enqueue_cdate',
+              'enqueue_link']
+    readonly_fields = ['enqueue_pk', 'enqueue_lcm', 'enqueue_status', 'enqueue_ext', 'enqueue_target',
+                       'enqueue_cdate', 'enqueue_link']
+
+    def enqueue_link(self, instance):
+        print 'admin:%s_%s_change' % (instance.enqueuedvideo._meta.app_label,
+                                      instance.enqueuedvideo._meta.model_name)
+        url = reverse('admin:%s_%s_change' % (instance.enqueuedvideo._meta.app_label,
+                                              instance.enqueuedvideo._meta.model_name),
+                      args=(instance.id,))
+
+        return format_html(u'<a class="button" href="{}">View Details</a>', url)
+        # … or if you want to include other fields:
+        # return format_html(u'<a href="{}">Edit: {}</a>', url, instance.title)
+
+    enqueue_link.short_description = 'Actions'
 
     def enqueue_pk(self, instance):
         # print instance.__dict__
@@ -85,7 +116,17 @@ class EnqueueVideoInline(admin.TabularInline):
     enqueue_lcm.short_description = 'Last message'
 
     def enqueue_status(self, instance):
-        return instance.enqueuedvideo.get_convert_status_display()
+        convert_status = instance.enqueuedvideo.convert_status
+        print convert_status
+        if convert_status == 'error':
+            output = format_html(u'<b style="color: #FF0000;">{}</b>',
+                                 instance.enqueuedvideo.get_convert_status_display())
+        elif convert_status == 'converted':
+            output = format_html(u'<b style="color: #7FFF00;">{}</b>',
+                                 instance.enqueuedvideo.get_convert_status_display())
+        else:
+            output = instance.enqueuedvideo.get_convert_status_display()
+        return output
 
     enqueue_status.short_description = 'Status'
 
@@ -111,21 +152,21 @@ class EnqueueVideoInline(admin.TabularInline):
 
     enqueue_target.short_description = 'Target'
 
-    def clown_name2(self, instance):
-        print 'y: '
-        # try:
-        #     EnqueuedVideo.objects.get(pk=instance.en)
-        print instance.__dict__
-        print 'enqueued video:'
-        print instance.enqueuedvideo.__dict__
-        print instance.enqueuedvideo.last_convert_msg
-        print instance.thumb_frame
-        t = instance.enqueuedvideo.converted_at
-        t.strftime('%m/%d/%Y')
-        print t
-        return t
-
-    clown_name2.short_description = 'y'
+    # def clown_name2(self, instance):
+    #     print 'y: '
+    #     # try:
+    #     #     EnqueuedVideo.objects.get(pk=instance.en)
+    #     print instance.__dict__
+    #     print 'enqueued video:'
+    #     print instance.enqueuedvideo.__dict__
+    #     print instance.enqueuedvideo.last_convert_msg
+    #     print instance.thumb_frame
+    #     t = instance.enqueuedvideo.converted_at
+    #     t.strftime('%m/%d/%Y')
+    #     print t
+    #     return t
+    #
+    # clown_name2.short_description = 'y'
     # fields = ['row_name']
     # readonly_fields = ['row_name']
     #
@@ -178,6 +219,8 @@ class EnqueuedVideoAdmin(admin.ModelAdmin):
 
 
 admin.site.register(EnqueuedVideo, EnqueuedVideoAdmin)
+
+# admin.site.register(EnqueuedVideo)
 
 admin.site.register(ConvertVideo, VideoAdmin)
 

@@ -180,19 +180,30 @@ class ConvertVideo(models.Model):
 
     # For manual video validation
     revision_options = (
-        (1, _('Pending')),
-        (2, _('Reviewed')),
+        ('pending', _('Pending')),
+        ('reviewed', _('Reviewed')),
     )
-    revision = models.IntegerField(verbose_name=_('Revision status'), choices=revision_options, default=1)
+    revision = models.CharField(verbose_name=_('Revision status'), choices=revision_options, default='pending',
+                                max_length=16,
+                                help_text=_('Set as reviewed if you are ok with everything in this page.'), )
+
+    status_options = (
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    )
+    status = models.CharField(verbose_name=_('Acceptance status'), choices=status_options, default='pending',
+                              max_length=16, help_text=_('Select the status of this review.'))
 
     reason_options = (
-        (1, _('Violence')),
-        (2, _('Nudity')),
-        (3, _('Hate')),
-        (4, _('Other')),
-        (5, _('Conversion error')),
+        ('violence', _('Violence')),
+        ('nudity', _('Nudity')),
+        ('hate', _('Hate')),
+        ('other', _('Other')),
+        ('conversion_error', _('Conversion error')),
     )
-    reason = models.IntegerField(verbose_name=_('Reject reason'), choices=reason_options, default=4)
+    reason = models.CharField(verbose_name=_('Reject reason'), choices=reason_options, default='other', max_length=16,
+                              help_text=_('If select other, please fill the field below.'))
 
     other = models.CharField(verbose_name=_('Other reason'), max_length=2000, blank=True, default='')
 
