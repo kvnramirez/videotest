@@ -58,8 +58,8 @@ class EnqueueVideoInline(admin.TabularInline):
     can_delete = False
     extra = 0
     model = ConvertVideo.enqueue.through
-    verbose_name = 'Enqueued video'
-    verbose_name_plural = 'Enqueued videos'
+    verbose_name = _('Enqueued video')
+    verbose_name_plural = _('Enqueued videos')
     template = 'tabular.html'
     show_change_link = True
 
@@ -97,23 +97,23 @@ class EnqueueVideoInline(admin.TabularInline):
                                               instance.enqueuedvideo._meta.model_name),
                       args=(instance.id,))
 
-        return format_html(u'<a class="button" href="{}">View Details</a>', url)
+        return format_html(u'<a class="button" href="{}">{}</a>', url, _('View Details'))
         # … or if you want to include other fields:
         # return format_html(u'<a href="{}">Edit: {}</a>', url, instance.title)
 
-    enqueue_link.short_description = 'Actions'
+    enqueue_link.short_description = _('Actions')
 
     def enqueue_pk(self, instance):
         # print instance.__dict__
         # print instance.enqueuedvideo.__dict__
         return instance.enqueuedvideo.pk
 
-    enqueue_pk.short_description = 'Pk'
+    enqueue_pk.short_description = _('Pk')
 
     def enqueue_lcm(self, instance):
         return instance.enqueuedvideo.last_convert_msg
 
-    enqueue_lcm.short_description = 'Last message'
+    enqueue_lcm.short_description = _('Last message')
 
     def enqueue_status(self, instance):
         convert_status = instance.enqueuedvideo.convert_status
@@ -128,53 +128,29 @@ class EnqueueVideoInline(admin.TabularInline):
             output = instance.enqueuedvideo.get_convert_status_display()
         return output
 
-    enqueue_status.short_description = 'Status'
+    enqueue_status.short_description = _('Status')
 
     def enqueue_ext(self, instance):
         return instance.enqueuedvideo.convert_extension
 
-    enqueue_ext.short_description = 'Extension'
+    enqueue_ext.short_description = _('Extension')
 
     def enqueue_cdate(self, instance):
         x = instance.enqueuedvideo.converted_at
         y = x.strftime('%Y-%m-%d %H:%M')
         return y
 
-    enqueue_cdate.short_description = 'Convertion date'
+    enqueue_cdate.short_description = _('Convertion date')
 
     def enqueue_target(self, instance):
         if instance.enqueuedvideo.convert_extension:
             if instance.enqueuedvideo.convert_extension == 'mov':
-                return 'Apple devices'
+                return _('Apple devices')
             else:
-                return 'Other devices'
+                return _('Other devices')
         return '-'
 
-    enqueue_target.short_description = 'Target'
-
-    # def clown_name2(self, instance):
-    #     print 'y: '
-    #     # try:
-    #     #     EnqueuedVideo.objects.get(pk=instance.en)
-    #     print instance.__dict__
-    #     print 'enqueued video:'
-    #     print instance.enqueuedvideo.__dict__
-    #     print instance.enqueuedvideo.last_convert_msg
-    #     print instance.thumb_frame
-    #     t = instance.enqueuedvideo.converted_at
-    #     t.strftime('%m/%d/%Y')
-    #     print t
-    #     return t
-    #
-    # clown_name2.short_description = 'y'
-    # fields = ['row_name']
-    # readonly_fields = ['row_name']
-    #
-    # def row_name(self, instance):
-    #     print instance.convert_status
-    #     return instance.enqueuevideo.convert_status
-    #
-    # row_name.short_description = 'row name'
+    enqueue_target.short_description = _('Device Target')
 
 
 class VideoAdmin(admin.ModelAdmin):
@@ -191,11 +167,6 @@ class VideoAdmin(admin.ModelAdmin):
         EnqueueVideoInline,
     ]
     exclude = ('enqueue',)
-
-    def _enqueued(self, obj):
-        return "\n".join([str(a.pk) for a in obj.enqueue.all()])
-
-    _enqueued.short_description = "List of Enqueued"
 
     # actions = [reconvert_video]
 
@@ -220,11 +191,4 @@ class EnqueuedVideoAdmin(admin.ModelAdmin):
 
 admin.site.register(EnqueuedVideo, EnqueuedVideoAdmin)
 
-# admin.site.register(EnqueuedVideo)
-
 admin.site.register(ConvertVideo, VideoAdmin)
-
-# class ConvertingCommandAdmin(admin.ModelAdmin): pass
-#
-#
-# admin.site.register(ConvertingCommand, ConvertingCommandAdmin)

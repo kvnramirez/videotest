@@ -111,13 +111,15 @@ class EnqueuedVideo(models.Model):
     )
     command = models.TextField(
         verbose_name=_('System command to convert video'),
-        help_text='Example: /usr/bin/ffmpeg -nostats -y -i %(input_file)s -acodec libmp3lame -ar 44100 -f flv %(output_file)s',
+        help_text=_(
+            'Example: /usr/bin/ffmpeg -nostats -y -i %(input_file)s -acodec libmp3lame -ar 44100 -f flv %(output_file)s'),
         null=True,
         blank=True,
     )
     thumb_command = models.TextField(
         verbose_name=_('System command to convert thumb'),
-        help_text='Example: /usr/bin/ffmpeg -hide_banner -nostats -i %(in_file)s -y -frames:v 1 -ss %(thumb_frame)s %(out_file)s',
+        help_text=_(
+            'Example: /usr/bin/ffmpeg -hide_banner -nostats -i %(in_file)s -y -frames:v 1 -ss %(thumb_frame)s %(out_file)s'),
         null=True,
         blank=True,
     )
