@@ -195,7 +195,7 @@ class Converter(object):
                 print '--- OUT----'
                 print stdoutdata
                 print '--- STDOUT ERR----'
-                print p.stdout.read()
+                # print p.stdout.read()
                 print '-----'
             if not errors:
                 print "no errors"
@@ -216,22 +216,3 @@ class Converter(object):
             print e
             print e.strerror
             return e.strerror, e.strerror, errors
-
-    # def _cli(self, cmd, without_output=False):
-    #     """
-    #     Pass command to command line interface
-    #     :param cmd: command to execute in command line interface
-    #     :param without_output:
-    #     :return: cli message output
-    #     """
-    #     if os.name == 'posix':
-    #         import commands
-    #         return commands.getoutput(cmd)
-    #     else:
-    #         import subprocess
-    #         if without_output:
-    #             DEVNULL = open(os.devnull, 'wb')
-    #             subprocess.Popen(cmd, stdout=DEVNULL, stderr=DEVNULL)
-    #         else:
-    #             p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-    #             return p.stdout.read()
