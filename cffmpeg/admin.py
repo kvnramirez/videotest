@@ -5,6 +5,8 @@ from django.contrib.admin.widgets import AdminFileWidget
 from django.db import models
 from django.contrib import admin
 from django.forms import CheckboxSelectMultiple
+from django.utils.dateformat import DateFormat
+from django.utils.formats import get_format
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
@@ -51,7 +53,7 @@ reconvert_video.short_description = _('Convert again')
 
 
 class EnqueueVideoInline(admin.TabularInline):
-    # can_delete = False
+    can_delete = False
     extra = 0
     model = ConvertVideo.enqueue.through
     verbose_name = 'Enqueued video'
@@ -66,22 +68,63 @@ class EnqueueVideoInline(admin.TabularInline):
     # def has_delete_permission(self, request, obj=None):
     #     return False
 
-    # fields = ['clown_name', 'clown_name2',]
-    # readonly_fields = ['clown_name', 'clown_name2',]
-    #
-    # def clown_name(self, instance):
-    #     print 'x'
-    #     print instance.pk
-    #     return instance.pk
-    #
-    # clown_name.short_description = 'pk'
-    #
-    # def clown_name2(self, instance):
-    #     print 'y: '
-    #     print instance.thumb_frame
-    #     return instance.converted_at
-    #
-    # clown_name2.short_description = 'y'
+    fields = ['enqueue_pk', 'enqueue_lcm', 'enqueue_status', 'enqueue_ext', 'enqueue_target', 'enqueue_cdate']
+    readonly_fields = ['enqueue_pk', 'enqueue_lcm', 'enqueue_status', 'enqueue_ext', 'enqueue_target', 'enqueue_cdate']
+
+    def enqueue_pk(self, instance):
+        # print instance.__dict__
+        # print instance.enqueuedvideo.__dict__
+        return instance.enqueuedvideo.pk
+
+    enqueue_pk.short_description = 'Pk'
+
+    def enqueue_lcm(self, instance):
+        return instance.enqueuedvideo.last_convert_msg
+
+    enqueue_lcm.short_description = 'Last message'
+
+    def enqueue_status(self, instance):
+        return instance.enqueuedvideo.get_convert_status_display()
+
+    enqueue_status.short_description = 'Status'
+
+    def enqueue_ext(self, instance):
+        return instance.enqueuedvideo.convert_extension
+
+    enqueue_ext.short_description = 'Extension'
+
+    def enqueue_cdate(self, instance):
+        x = instance.enqueuedvideo.converted_at
+        y = x.strftime('%Y-%m-%d %H:%M')
+        return y
+
+    enqueue_cdate.short_description = 'Convertion date'
+
+    def enqueue_target(self, instance):
+        if instance.enqueuedvideo.convert_extension:
+            if instance.enqueuedvideo.convert_extension == 'mov':
+                return 'Apple devices'
+            else:
+                return 'Other devices'
+        return '-'
+
+    enqueue_target.short_description = 'Target'
+
+    def clown_name2(self, instance):
+        print 'y: '
+        # try:
+        #     EnqueuedVideo.objects.get(pk=instance.en)
+        print instance.__dict__
+        print 'enqueued video:'
+        print instance.enqueuedvideo.__dict__
+        print instance.enqueuedvideo.last_convert_msg
+        print instance.thumb_frame
+        t = instance.enqueuedvideo.converted_at
+        t.strftime('%m/%d/%Y')
+        print t
+        return t
+
+    clown_name2.short_description = 'y'
     # fields = ['row_name']
     # readonly_fields = ['row_name']
     #
