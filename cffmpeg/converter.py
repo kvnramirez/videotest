@@ -78,6 +78,14 @@ class Converter(object):
             print 'Converting video command: %s' % c
             stdoutdata, stderrdata, errors = self._cli(c)
             logger.info('Converting video result: %s' % stderrdata)
+            print 'Converting video result: %s' % stderrdata
+            if errors:
+                print 'Converting video error'
+                enqueue_video.convert_status = 'error'
+                enqueue_video.last_convert_msg = u'Error while converting'
+                enqueue_video.full_convert_msg = stderrdata
+                enqueue_video.save()
+                return
         except Exception as e:
             logger.error('Converting video error', exc_info=True)
             print 'Converting video error'
